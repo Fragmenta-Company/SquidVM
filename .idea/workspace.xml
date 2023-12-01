@@ -7,20 +7,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f9a4c04-160c-429a-be0d-87442f45dfdf" name="Changes" comment="Started project">
-      <change afterPath="$PROJECT_DIR$/.idea/sbt.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/vminternals/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/vminternals/stack.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/vminternals/vm.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/VM.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/squid-vm.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-    </list>
+    <list default="true" id="3f9a4c04-160c-429a-be0d-87442f45dfdf" name="Changes" comment="Simple VM implementation with simple interpreter.&#10;Instructions to halt, add, subtract, multiply and divide integers and floats, having one function to force a division with only integers.&#10;Instructions to Print, move from data block to stack, from stack to data block, JMP from data block data, JMP from stack data." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -156,7 +143,7 @@
       <updated>1701278899759</updated>
       <workItem from="1701278902332" duration="2144000" />
       <workItem from="1701284554129" duration="44693000" />
-      <workItem from="1701403994660" duration="15445000" />
+      <workItem from="1701403994660" duration="16293000" />
     </task>
     <task id="LOCAL-00001" summary="Started project">
       <option name="closed" value="true" />
@@ -166,7 +153,55 @@
       <option name="project" value="LOCAL" />
       <updated>1701279117860</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added VM initialization and simple interpreter example">
+      <option name="closed" value="true" />
+      <created>1701428917841</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1701428917841</updated>
+    </task>
+    <task id="LOCAL-00003" summary=".idea folder">
+      <option name="closed" value="true" />
+      <created>1701429016608</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1701429016608</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Added simple dependencies for logging and byteordering">
+      <option name="closed" value="true" />
+      <created>1701429049357</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1701429049357</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added a module called vminternals">
+      <option name="closed" value="true" />
+      <created>1701429071658</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1701429071658</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Simple stack implementation with function to view length, check if empty, pop, push and initialize (new function);">
+      <option name="closed" value="true" />
+      <created>1701429243555</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1701429243555</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Simple VM implementation with simple interpreter.&#10;Instructions to halt, add, subtract, multiply and divide integers and floats, having one function to force a division with only integers.&#10;Instructions to Print, move from data block to stack, from stack to data block, JMP from data block data, JMP from stack data.">
+      <option name="closed" value="true" />
+      <created>1701429703133</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1701429703133</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -174,7 +209,13 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Started project" />
-    <option name="LAST_COMMIT_MESSAGE" value="Started project" />
+    <MESSAGE value="Added VM initialization and simple interpreter example" />
+    <MESSAGE value=".idea folder" />
+    <MESSAGE value="Added simple dependencies for logging and byteordering" />
+    <MESSAGE value="Added a module called vminternals" />
+    <MESSAGE value="Simple stack implementation with function to view length, check if empty, pop, push and initialize (new function);" />
+    <MESSAGE value="Simple VM implementation with simple interpreter.&#10;Instructions to halt, add, subtract, multiply and divide integers and floats, having one function to force a division with only integers.&#10;Instructions to Print, move from data block to stack, from stack to data block, JMP from data block data, JMP from stack data." />
+    <option name="LAST_COMMIT_MESSAGE" value="Simple VM implementation with simple interpreter.&#10;Instructions to halt, add, subtract, multiply and divide integers and floats, having one function to force a division with only integers.&#10;Instructions to Print, move from data block to stack, from stack to data block, JMP from data block data, JMP from stack data." />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
