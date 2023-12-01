@@ -1,5 +1,4 @@
 
-use std::time::{Instant};
 
 #[derive(Clone)]
 pub struct BinaryCode(i128);

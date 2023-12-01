@@ -3,7 +3,7 @@ mod vminternals;
 use vminternals::stack::*;
 use vminternals::VMStarter;
 use std::any::type_name;
-use std::env;
+// use std::env;
 
 fn print_type_of<T>(_: &T) {
     println!("{}", type_name::<T>())

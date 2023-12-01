@@ -1,4 +1,4 @@
-use log::debug;
+// use log::debug;
 use crate::vminternals::{Immediates, VMStack};
 
 pub struct VMStarter<'a> {
