@@ -1,34 +1,20 @@
-#[derive(Clone)]
-pub struct BinaryCode(i128);
-
-// #[allow(dead_code)]
-
+use crate::vminternals::immediates::Immediates;
 use arrayvec::ArrayVec;
 
-#[derive(Clone)]
-pub enum Immediates {
-    Null,
-    Boolean(bool),
-    UInteger(u64),
-    Integer(i64),
-    Float(f64),
-    String(String),
-    Binary(BinaryCode),
-}
+const STACK_SIZE: usize = 2000;
 
 pub struct VMStack {
-    stack_memory: ArrayVec<Immediates, 1000>,
+    stack_memory: ArrayVec<Immediates, STACK_SIZE>,
     stack_capacity: usize,
     top: usize,
 }
 
 impl VMStack {
     pub fn new() -> VMStack {
-
         VMStack {
-            stack_capacity: 1000,
+            stack_capacity: STACK_SIZE,
             top: 0,
-            stack_memory: ArrayVec::<Immediates, 1000>::new(),
+            stack_memory: ArrayVec::<Immediates, STACK_SIZE>::new(),
         }
     }
 
@@ -37,7 +23,7 @@ impl VMStack {
     }
 
     pub fn pop(&mut self) -> Immediates {
-        if self.top == self.stack_capacity || self.top == 0 {
+        if self.top == 0 {
             panic!("[ STACK OVERFLOW ]");
         }
 

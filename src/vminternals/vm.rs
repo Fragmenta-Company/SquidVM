@@ -1,19 +1,22 @@
 // use log::debug;
-use crate::vminternals::{Immediates, VMStack};
+use crate::vminternals::immediates::Immediates;
+use crate::vminternals::{VMHeap, VMStack};
 
 pub struct VMStarter<'a> {
     pc: usize,
-    instruction: i32,
-    instructions: &'a [i32],
+    instruction: u8,
+    instructions: &'a [u8],
     stack: VMStack,
+    heap: VMHeap,
     data: Immediates,
     pub running: bool,
 }
 
 impl<'a> VMStarter<'a> {
-    pub fn new() -> VMStarter<'a> {
+    pub fn new(heap_size:usize) -> VMStarter<'a> {
         VMStarter {
             stack: VMStack::new(),
+            heap: VMHeap::new(heap_size),
             pc: 0x00,
             instruction: 0x00,
             data: Immediates::Integer(10),
@@ -26,7 +29,7 @@ impl<'a> VMStarter<'a> {
         self.stack.get_length()
     }
 
-    pub fn interpreter(&mut self, instructions: &'a [i32], data: &[Immediates]) {
+    pub fn interpreter(&mut self, instructions: &'a [u8], data: &[Immediates]) {
         self.instructions = instructions;
 
         while self.pc < self.instructions.len() {
@@ -55,7 +58,7 @@ impl<'a> VMStarter<'a> {
         self.stack.check_empty()
     }
 
-    pub fn instructor(&mut self, instruction: i32) {
+    pub fn instructor(&mut self, instruction: u8) {
         match instruction {
             0x00 => {
                 println!("[ HALT ]");
@@ -244,7 +247,7 @@ impl<'a> VMStarter<'a> {
                 }
             }
             0x0E => {
-                println!("[ PRTFS ]");
+                print!("[ PRTFS ]");
 
                 if let Immediates::String(s) = self.stack.pop() {
                     println!("{s}");
@@ -256,9 +259,102 @@ impl<'a> VMStarter<'a> {
                 println!("[ PRTFD ]");
 
                 if let Immediates::String(s) = self.data.clone() {
-                    println!("{s}");
+                    print!("{s}");
                 } else {
                     panic!("[ NO STRING ]");
+                }
+            }
+            0x10 => {
+                println!("[ iExp ]");
+
+                if let (Immediates::UInteger(v2), Immediates::Integer(v1)) =
+                    (self.stack.pop(), self.stack.pop())
+                {
+                    self.stack.push(Immediates::Integer(v1.pow(v2 as u32)));
+                } else {
+                    panic!("[ NO INTEGERS ]")
+                }
+            }
+            0x11 => {
+                println!("[ fExp ]");
+
+                if let (Immediates::Float(v2), Immediates::Float(v1)) =
+                    (self.stack.pop(), self.stack.pop())
+                {
+                    self.stack.push(Immediates::Float(v1.powf(v2)));
+                } else {
+                    panic!("[ NO FLOATS ]")
+                }
+            }
+            0x12 => {
+                println!("[ fiExp ]");
+
+                if let (Immediates::Integer(v2), Immediates::Float(v1)) =
+                    (self.stack.pop(), self.stack.pop())
+                {
+                    self.stack.push(Immediates::Float(v1.powi(v2 as i32)));
+                } else {
+                    panic!("[ NO FLOATS ]")
+                }
+            }
+            0x13 => {
+                println!("[ PRTAFD ]");
+
+                match self.data.clone() {
+                    Immediates::Null => {
+                        print!("Null");
+                    }
+                    Immediates::Boolean(b) => {
+                        print!("{}", b);
+                    }
+                    Immediates::UInteger(ui) => {
+                        print!("{}", ui);
+                    }
+                    Immediates::Integer(i) => {
+                        print!("{}", i);
+                    }
+                    Immediates::Float(f) => {
+                        print!("{}", f);
+                    }
+                    Immediates::String(s) => {
+                        print!("{}", s);
+                    }
+                    Immediates::Binary(bin) => {
+                        print!("{:?}", bin);
+                    }
+                    Immediates::Enum(_) => {
+                        panic!("[ ENUM NOT SUPPORTED ]")
+                    }
+                }
+            }
+            0x14 => {
+                println!("[ PRTAFS ]");
+
+                match self.stack.pop() {
+                    Immediates::Null => {
+                        print!("Null");
+                    }
+                    Immediates::Boolean(b) => {
+                        print!("{}", b);
+                    }
+                    Immediates::UInteger(ui) => {
+                        print!("{}", ui);
+                    }
+                    Immediates::Integer(i) => {
+                        print!("{}", i);
+                    }
+                    Immediates::Float(f) => {
+                        print!("{}", f);
+                    }
+                    Immediates::String(s) => {
+                        println!("{}", s);
+                    }
+                    Immediates::Binary(bin) => {
+                        print!("{:?}", bin);
+                    }
+                    Immediates::Enum(_) => {
+                        panic!("[ ENUM NOT SUPPORTED ]")
+                    }
                 }
             }
             _ => {
