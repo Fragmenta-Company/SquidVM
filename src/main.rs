@@ -1,6 +1,6 @@
 mod vminternals;
 
-use crate::vminternals::VMHeap;
+// use crate::vminternals::VMHeap;
 use std::any::type_name;
 use vminternals::immediates::Immediates;
 use vminternals::VMStarter;
