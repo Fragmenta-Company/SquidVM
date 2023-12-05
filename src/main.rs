@@ -1,7 +1,8 @@
 mod vminternals;
 
+use crate::vminternals::VMHeap;
 use std::any::type_name;
-use vminternals::stack::*;
+use vminternals::immediates::Immediates;
 use vminternals::VMStarter;
 // use std::env;
 
@@ -10,7 +11,21 @@ fn print_type_of<T>(_: &T) {
 }
 
 fn main() {
-    let mut vm = VMStarter::new();
+    // println!("{:?}", b"idk");
+
+    // let mut heap = VMHeap::new(10);
+    //
+    // heap.add_var(0x00, Immediates::Integer(27));
+    //
+    // let var = heap.get_var(0x00);
+    //
+    // if let Immediates::Integer(i) = var {
+    //
+    //     println!("{}", *i)
+    //
+    // }
+
+    let mut vm = VMStarter::new(100);
 
     vm.interpreter(
         &[
