@@ -1,19 +1,20 @@
+use crate::sqbinreader::FileReader;
 // use log::debug;
 use crate::vminternals::immediates::Immediates;
 use crate::vminternals::{VMHeap, VMStack};
 
-pub struct VMStarter<'a> {
+pub struct VMStarter {
     pc: usize,
     instruction: u8,
-    instructions: &'a [u8],
+    instructions: Vec<u8>,
     stack: VMStack,
     heap: VMHeap,
     data: Immediates,
     pub running: bool,
 }
 
-impl<'a> VMStarter<'a> {
-    pub fn new(heap_size:usize) -> VMStarter<'a> {
+impl VMStarter {
+    pub fn new(heap_size:usize) -> VMStarter {
         VMStarter {
             stack: VMStack::new(),
             heap: VMHeap::new(heap_size),
@@ -21,7 +22,7 @@ impl<'a> VMStarter<'a> {
             instruction: 0x00,
             data: Immediates::Integer(10),
             running: true,
-            instructions: &[],
+            instructions: Vec::new(),
         }
     }
 
@@ -29,8 +30,8 @@ impl<'a> VMStarter<'a> {
         self.stack.get_length()
     }
 
-    pub fn interpreter(&mut self, instructions: &'a [u8], data: &[Immediates]) {
-        self.instructions = instructions;
+    pub fn interpreter(&mut self, instructions: Vec<u8>, data: &[Immediates]) {
+        self.instructions = instructions.clone();
 
         while self.pc < self.instructions.len() {
             let instruction = self.instructions[self.pc];
@@ -42,6 +43,26 @@ impl<'a> VMStarter<'a> {
         }
 
         if self.pc > instructions.len() {
+            panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
+        }
+    }
+
+    pub fn interpreter2(&mut self, file_reader:FileReader) {
+
+        self.instructions = file_reader.instructions.clone();
+
+        println!("Instructions: {:?}", self.instructions);
+
+        while self.pc < self.instructions.len() {
+            let instruction = self.instructions[self.pc];
+            self.data = file_reader.data[self.pc].clone();
+            self.instruction = instruction;
+            self.instructor(instruction);
+            self.pc += 1;
+            println!("{}", self.pc);
+        }
+
+        if self.pc > file_reader.instructions.clone().len() {
             panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
         }
     }
@@ -319,12 +340,12 @@ impl<'a> VMStarter<'a> {
                     Immediates::String(s) => {
                         print!("{}", s);
                     }
-                    Immediates::Binary(bin) => {
-                        print!("{:?}", bin);
-                    }
-                    Immediates::Enum(_) => {
-                        panic!("[ ENUM NOT SUPPORTED ]")
-                    }
+                    // Immediates::Binary(bin) => {
+                    //     print!("{:?}", bin);
+                    // }
+                    // Immediates::Enum(_) => {
+                    //     panic!("[ ENUM NOT SUPPORTED ]")
+                    // }
                 }
             }
             0x14 => {
@@ -349,12 +370,12 @@ impl<'a> VMStarter<'a> {
                     Immediates::String(s) => {
                         println!("{}", s);
                     }
-                    Immediates::Binary(bin) => {
-                        print!("{:?}", bin);
-                    }
-                    Immediates::Enum(_) => {
-                        panic!("[ ENUM NOT SUPPORTED ]")
-                    }
+                    // Immediates::Binary(bin) => {
+                    //     print!("{:?}", bin);
+                    // }
+                    // Immediates::Enum(_) => {
+                    //     panic!("[ ENUM NOT SUPPORTED ]")
+                    // }
                 }
             }
             _ => {

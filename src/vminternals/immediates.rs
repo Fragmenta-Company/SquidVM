@@ -1,15 +1,10 @@
 
-#[derive(Clone, Debug)]
-pub struct BinaryCode(i128);
-
-#[derive(Clone)]
+#[derive(Clone, PartialEq, PartialOrd, Debug)]
 pub enum Immediates {
     Null,
     Boolean(bool),
-    UInteger(u64),
     Integer(i64),
+    UInteger(u64),
     Float(f64),
     String(String),
-    Binary(BinaryCode),
-    Enum(Box<[Immediates]>),
 }
