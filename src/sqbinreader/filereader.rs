@@ -28,7 +28,7 @@ impl FileReader {
         };
 
         let mut offset = 0x00;
-        let filelength = fs::metadata(file_location.clone()).expect("INVALID FILE METADATA").len();
+        // let filelength = fs::metadata(file_location.clone()).expect("INVALID FILE METADATA").len();
         // println!("{filelength}");
 
         loop {
@@ -121,7 +121,7 @@ impl FileReader {
                                     data.push(Immediates::String(string));
                                 }
                                 Err(e) => {
-                                    panic!("INVALID FILE DATA!");
+                                    panic!("INVALID FILE DATA! {}", e);
                                 }
                             }
                             // if let Some(Immediates::String(stringerson)) = data.pop() {
@@ -147,7 +147,7 @@ impl FileReader {
                                     data.push(Immediates::String(string));
                                 }
                                 Err(e) => {
-                                    panic!("INVALID FILE DATA!");
+                                    panic!("INVALID FILE DATA! {}", e);
                                 }
                             }
                         }
@@ -169,7 +169,7 @@ impl FileReader {
                                     data.push(Immediates::String(string));
                                 }
                                 Err(e) => {
-                                    panic!("INVALID FILE DATA!");
+                                    panic!("INVALID FILE DATA! {}", e);
                                 }
                             }
                         }
@@ -191,7 +191,7 @@ impl FileReader {
                                     data.push(Immediates::String(string));
                                 }
                                 Err(e) => {
-                                    panic!("INVALID FILE DATA!");
+                                    panic!("INVALID FILE DATA! {}", e);
                                 }
                             }
                         }
@@ -213,7 +213,7 @@ impl FileReader {
                                     data.push(Immediates::String(string));
                                 }
                                 Err(e) => {
-                                    panic!("INVALID FILE DATA!");
+                                    panic!("INVALID FILE DATA! {}", e);
                                 }
                             }
                         }
