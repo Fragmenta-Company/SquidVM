@@ -62,7 +62,47 @@ impl FileReader {
                     break;
                 }
                 0x01 => {
-                    instructions.push(buffer[0]);
+                    instructions.push(0x01);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x02 => {
+                    instructions.push(0x02);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x03 => {
+                    instructions.push(0x03);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x04 => {
+                    instructions.push(0x04);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x05 => {
+                    instructions.push(0x05);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x06 => {
+                    instructions.push(0x06);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x07 => {
+                    instructions.push(0x07);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x08 => {
+                    instructions.push(0x08);
+                    data.push(Immediates::Null);
+                    offset += 1;
+                }
+                0x09 => {
+                    instructions.push(0x09);
                     data.push(Immediates::Null);
                     offset += 1;
                 }
