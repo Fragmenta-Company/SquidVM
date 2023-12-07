@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
-use std::{fs, process};
+use std::{process};
 use byteorder::{LittleEndian, ReadBytesExt};
 use crate::vminternals::immediates::Immediates;
 
