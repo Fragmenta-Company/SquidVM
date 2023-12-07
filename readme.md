@@ -11,4 +11,16 @@ It's made from the ground up using Rust for its implementation.
 
 The VM will contain a programming language with the name Squid.
 
+## How to open files
+
+* Execute the VM as normal, via the CLI `./squid-vm` (after using chmod +x of course).
+* Put the binary path after the executable.
+
+Like this:
+`./squid-vm testbinary.sqdbin`
+
+Here ya go!
+
+Hope it helps. : )
+
 `todo!();`
