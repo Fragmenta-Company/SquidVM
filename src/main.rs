@@ -1,51 +1,58 @@
 mod vminternals;
-
-// use crate::vminternals::VMHeap;
+mod sqbinreader;
+use byteorder;
 use std::any::type_name;
-use vminternals::immediates::Immediates;
 use vminternals::VMStarter;
-// use std::env;
+use std::{env, process};
+use std::io::{Read, Seek};
+use byteorder::{ReadBytesExt};
+use crate::sqbinreader::FileReader;
 
 fn print_type_of<T>(_: &T) {
     println!("{}", type_name::<T>())
 }
 
 fn main() {
-    // println!("{:?}", b"idk");
-
-    // let mut heap = VMHeap::new(10);
-    //
-    // heap.add_var(0x00, Immediates::Integer(27));
-    //
-    // let var = heap.get_var(0x00);
-    //
-    // if let Immediates::Integer(i) = var {
-    //
-    //     println!("{}", *i)
-    //
-    // }
 
     let mut vm = VMStarter::new(100);
 
-    vm.interpreter(
-        &[
-            0x0A,
-            0x0A,
-            0x01,
-            0x0A,
-            0x0E,
-            // 0x09,
-            0x00,
-        ],
-        &[
-            Immediates::Integer(10),
-            Immediates::Integer(12),
-            Immediates::Null,
-            Immediates::String(format!("Random String!")),
-            Immediates::Null,
-            Immediates::Null,
-        ],
-    );
+    while vm.running == true {
+
+    // vm.interpreter(
+    //     (&[
+    //         0x0A,
+    //         0x0A,
+    //         0x01,
+    //         0x0A,
+    //         0x0E,
+    //         // 0x09,
+    //         0x00,
+    //     ]).to_vec(),
+    //     &[
+    //         Immediates::Integer(10),
+    //         Immediates::Integer(12),
+    //         Immediates::Null,
+    //         Immediates::String(format!("\nLinha randômica!")),
+    //         Immediates::Null,
+    //         Immediates::Null,
+    //     ],
+    // );
+
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 1 {
+        let fileread = FileReader::new(args[1].clone());
+
+        vm.interpreter2(
+            fileread
+        );
+
+    }else {
+        eprintln!("\x1B[31m{}\x1b[0m", "File not specified!");
+        process::exit(3);
+    }
+
+    }
 
     println!("Exiting...");
 }
