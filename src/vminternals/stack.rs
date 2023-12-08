@@ -24,7 +24,7 @@ impl VMStack {
 
     pub fn pop(&mut self) -> Immediates {
         if self.top == 0 {
-            panic!("[ STACK OVERFLOW ]");
+            panic!("[ STACK UNDERFLOW ]");
         }
 
         self.top -= 1;
