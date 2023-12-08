@@ -1,6 +1,8 @@
 use crate::sqbinreader::FileReader;
 // use log::debug;
-use crate::vminternals::immediates::Immediates;
+use crate::vminternals::immediates::Immediates::{
+    self, Array, Binary, Boolean, Float, Integer, Null, String as TypeString, UInteger,
+};
 use crate::vminternals::{VMHeap, VMStack};
 
 pub struct VMStarter {
@@ -13,21 +15,27 @@ pub struct VMStarter {
     pub running: bool,
 }
 
+pub trait GetLength {
+    fn get_length(&mut self) -> usize;
+}
+
+impl GetLength for VMStarter {
+    fn get_length(&mut self) -> usize {
+        self.stack.get_length()
+    }
+}
+
 impl VMStarter {
-    pub fn new(heap_size:usize) -> VMStarter {
+    pub fn new(heap_size: usize) -> VMStarter {
         VMStarter {
             stack: VMStack::new(),
             heap: VMHeap::new(heap_size),
             pc: 0x00,
             instruction: 0x00,
-            data: Immediates::Integer(10),
+            data: Null,
             running: true,
             instructions: Vec::new(),
         }
-    }
-
-    pub fn get_length(&mut self) -> usize {
-        self.stack.get_length()
     }
 
     pub fn interpreter(&mut self, instructions: Vec<u8>, data: &[Immediates]) {
@@ -47,8 +55,7 @@ impl VMStarter {
         }
     }
 
-    pub fn interpreter2(&mut self, file_reader:FileReader) {
-
+    pub fn interpreter2(&mut self, file_reader: FileReader) {
         self.instructions = file_reader.instructions.clone();
 
         println!("Instructions: {:?}", self.instructions);
@@ -57,14 +64,17 @@ impl VMStarter {
             let instruction = self.instructions[self.pc];
             self.data = file_reader.data[self.pc].clone();
             self.instruction = instruction;
-            self.instructor(instruction);
             self.pc += 1;
+            self.instructor(instruction);
             println!("{}", self.pc);
+            // println!("Length: {}", self.heap.heap_memory.len());
         }
 
         if self.pc > file_reader.instructions.clone().len() {
             panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
         }
+
+        self.pc += 1;
     }
 
     pub fn push(&mut self, data: Immediates) {
@@ -91,11 +101,11 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Integer(v1a), Immediates::Integer(v2a)) = (v1, v2) {
+                if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
                     println!("{} {}", v1a, v2a);
 
                     println!("{}", v1a + v2a);
-                    self.stack.push(Immediates::Integer(v1a + v2a));
+                    self.stack.push(Integer(v1a + v2a));
                     return;
                 } else {
                     panic!("[ NO INTEGERS ]");
@@ -106,9 +116,9 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Integer(v1a), Immediates::Integer(v2a)) = (v1, v2) {
+                if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
                     println!("{}", v1a - v2a);
-                    self.stack.push(Immediates::Integer(v1a - v2a));
+                    self.stack.push(Integer(v1a - v2a));
                     return;
                 } else {
                     panic!("[ NO INTEGERS ]");
@@ -119,9 +129,9 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Integer(v1a), Immediates::Integer(v2a)) = (v1, v2) {
+                if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
                     println!("{}", v1a * v2a);
-                    self.stack.push(Immediates::Integer(v1a * v2a));
+                    self.stack.push(Integer(v1a * v2a));
                     return;
                 } else {
                     panic!("[ NO INTEGERS ]");
@@ -132,11 +142,11 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Integer(v1a), Immediates::Integer(v2a)) = (v1, v2) {
+                if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
                     if (v1a / v2a) as f64 == (v1a as f64 / v2a as f64) {
-                        self.stack.push(Immediates::Integer(v1a / v2a));
+                        self.stack.push(Integer(v1a / v2a));
                     } else {
-                        self.stack.push(Immediates::Float(v1a as f64 / v2a as f64));
+                        self.stack.push(Float(v1a as f64 / v2a as f64));
                     }
 
                     return;
@@ -149,8 +159,8 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Integer(v1a), Immediates::Integer(v2a)) = (v1, v2) {
-                    self.stack.push(Immediates::Integer(v1a / v2a));
+                if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
+                    self.stack.push(Integer(v1a / v2a));
 
                     return;
                 } else {
@@ -163,10 +173,10 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Float(v1a), Immediates::Float(v2a)) = (v1, v2) {
+                if let (Float(v1a), Float(v2a)) = (v1, v2) {
                     println!("{}", v1a + v2a);
 
-                    self.stack.push(Immediates::Float(v1a + v2a));
+                    self.stack.push(Float(v1a + v2a));
 
                     return;
                 } else {
@@ -179,10 +189,10 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Float(v1a), Immediates::Float(v2a)) = (v1, v2) {
+                if let (Float(v1a), Float(v2a)) = (v1, v2) {
                     println!("{}", v1a - v2a);
 
-                    self.stack.push(Immediates::Float(v1a - v2a));
+                    self.stack.push(Float(v1a - v2a));
 
                     return;
                 } else {
@@ -195,10 +205,10 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Float(v1a), Immediates::Float(v2a)) = (v1, v2) {
+                if let (Float(v1a), Float(v2a)) = (v1, v2) {
                     println!("{}", v1a * v2a);
 
-                    self.stack.push(Immediates::Float(v1a * v2a));
+                    self.stack.push(Float(v1a * v2a));
 
                     return;
                 } else {
@@ -211,10 +221,10 @@ impl VMStarter {
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
-                if let (Immediates::Float(v1a), Immediates::Float(v2a)) = (v1, v2) {
+                if let (Float(v1a), Float(v2a)) = (v1, v2) {
                     println!("{}", v1a / v2a);
 
-                    self.stack.push(Immediates::Float(v1a / v2a));
+                    self.stack.push(Float(v1a / v2a));
 
                     return;
                 } else {
@@ -226,7 +236,7 @@ impl VMStarter {
 
                 let pdts = &self.data;
 
-                // if let Immediates::Integer(i) = pdts {
+                // if let Integer(i) = pdts {
                 //
                 //     println!("{}", i);
                 //
@@ -248,7 +258,7 @@ impl VMStarter {
             0x0C => {
                 println!("[ JMPFD ]");
 
-                if let Immediates::Integer(i) = self.data {
+                if let UInteger(i) = self.data {
                     self.pc = i as usize;
 
                     return;
@@ -259,7 +269,7 @@ impl VMStarter {
             0x0D => {
                 println!("[ JMPFS ]");
 
-                if let Immediates::Integer(i) = self.pop() {
+                if let UInteger(i) = self.pop() {
                     self.pc = i as usize;
 
                     return;
@@ -270,7 +280,7 @@ impl VMStarter {
             0x0E => {
                 print!("[ PRTFS ]");
 
-                if let Immediates::String(s) = self.stack.pop() {
+                if let TypeString(s) = self.stack.pop() {
                     println!("{s}");
                 } else {
                     panic!("[ NO STRING ]");
@@ -279,7 +289,7 @@ impl VMStarter {
             0x0F => {
                 println!("[ PRTFD ]");
 
-                if let Immediates::String(s) = self.data.clone() {
+                if let TypeString(s) = self.data.clone() {
                     print!("{s}");
                 } else {
                     panic!("[ NO STRING ]");
@@ -288,10 +298,8 @@ impl VMStarter {
             0x10 => {
                 println!("[ iExp ]");
 
-                if let (Immediates::UInteger(v2), Immediates::Integer(v1)) =
-                    (self.stack.pop(), self.stack.pop())
-                {
-                    self.stack.push(Immediates::Integer(v1.pow(v2 as u32)));
+                if let (UInteger(v2), Integer(v1)) = (self.stack.pop(), self.stack.pop()) {
+                    self.stack.push(Integer(v1.pow(v2 as u32)));
                 } else {
                     panic!("[ NO INTEGERS ]")
                 }
@@ -299,10 +307,8 @@ impl VMStarter {
             0x11 => {
                 println!("[ fExp ]");
 
-                if let (Immediates::Float(v2), Immediates::Float(v1)) =
-                    (self.stack.pop(), self.stack.pop())
-                {
-                    self.stack.push(Immediates::Float(v1.powf(v2)));
+                if let (Float(v2), Float(v1)) = (self.stack.pop(), self.stack.pop()) {
+                    self.stack.push(Float(v1.powf(v2)));
                 } else {
                     panic!("[ NO FLOATS ]")
                 }
@@ -310,10 +316,8 @@ impl VMStarter {
             0x12 => {
                 println!("[ fiExp ]");
 
-                if let (Immediates::Integer(v2), Immediates::Float(v1)) =
-                    (self.stack.pop(), self.stack.pop())
-                {
-                    self.stack.push(Immediates::Float(v1.powi(v2 as i32)));
+                if let (Integer(v2), Float(v1)) = (self.stack.pop(), self.stack.pop()) {
+                    self.stack.push(Float(v1.powi(v2 as i32)));
                 } else {
                     panic!("[ NO FLOATS ]")
                 }
@@ -322,60 +326,90 @@ impl VMStarter {
                 println!("[ PRTAFD ]");
 
                 match self.data.clone() {
-                    Immediates::Null => {
+                    Null => {
                         print!("Null");
                     }
-                    Immediates::Boolean(b) => {
+                    Boolean(b) => {
                         print!("{}", b);
                     }
-                    Immediates::UInteger(ui) => {
+                    UInteger(ui) => {
                         print!("{}", ui);
                     }
-                    Immediates::Integer(i) => {
+                    Integer(i) => {
                         print!("{}", i);
                     }
-                    Immediates::Float(f) => {
+                    Float(f) => {
                         print!("{}", f);
                     }
-                    Immediates::String(s) => {
+                    TypeString(s) => {
                         print!("{}", s);
                     }
-                    // Immediates::Binary(bin) => {
-                    //     print!("{:?}", bin);
-                    // }
-                    // Immediates::Enum(_) => {
-                    //     panic!("[ ENUM NOT SUPPORTED ]")
-                    // }
+                    Binary(bin) => {
+                        print!("{:?}", bin);
+                    }
+                    Array(arr) => {
+                        print!("{:?}", arr)
+                    }
                 }
             }
             0x14 => {
                 println!("[ PRTAFS ]");
 
                 match self.stack.pop() {
-                    Immediates::Null => {
+                    Null => {
                         print!("Null");
                     }
-                    Immediates::Boolean(b) => {
+                    Boolean(b) => {
                         print!("{}", b);
                     }
-                    Immediates::UInteger(ui) => {
+                    UInteger(ui) => {
                         print!("{}", ui);
                     }
-                    Immediates::Integer(i) => {
+                    Integer(i) => {
                         print!("{}", i);
                     }
-                    Immediates::Float(f) => {
+                    Float(f) => {
                         print!("{}", f);
                     }
-                    Immediates::String(s) => {
+                    TypeString(s) => {
                         println!("{}", s);
                     }
-                    // Immediates::Binary(bin) => {
-                    //     print!("{:?}", bin);
-                    // }
-                    // Immediates::Enum(_) => {
-                    //     panic!("[ ENUM NOT SUPPORTED ]")
-                    // }
+                    Binary(bin) => {
+                        println!("{:?}", bin);
+                    }
+                    Array(arr) => {
+                        print!("{:?}", arr)
+                    }
+                }
+            }
+            0x15 => {
+                println!("[ AddVar ]");
+
+                let var_value = self.stack.pop();
+                let var_name = self.stack.pop();
+
+                if let UInteger(var_name) = var_name {
+                    self.heap.add_var(var_name as usize, var_value)
+                } else {
+                    panic!("[ INVALID VAR NAME ]");
+                }
+            }
+            0x16 => {
+                println!("[ dVFD ]");
+
+                if let UInteger(var_name) = self.data {
+                    println!("{:?}", self.heap.get_var(var_name as usize));
+                } else {
+                    panic!("[ WRONG VARIABLE NAME ]");
+                }
+            }
+            0x17 => {
+                println!("[ dVFS ]");
+
+                if let UInteger(var_name) = self.stack.pop() {
+                    println!("{:?}", self.heap.get_var(var_name as usize));
+                } else {
+                    panic!("[ WRONG VARIABLE NAME ]");
                 }
             }
             _ => {
