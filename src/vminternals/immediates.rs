@@ -1,4 +1,3 @@
-
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
 pub enum Immediates {
     Null,
@@ -7,4 +6,6 @@ pub enum Immediates {
     UInteger(u64),
     Float(f64),
     String(String),
+    Binary(Vec<u8>),
+    Array(Vec<Immediates>),
 }
