@@ -13,32 +13,27 @@ impl VMHeap {
         }
     }
 
-    pub fn add_var(&mut self, var_name:usize, var_data:Immediates){
-
+    pub fn add_var(&mut self, var_name: usize, var_data: Immediates) {
         if self.heap_capacity == self.heap_memory.len() {
             panic!("[ HEAP OVERFLOW ]")
         }
 
         self.heap_memory.insert(var_name, var_data);
-
     }
 
-    pub fn remove_var(&mut self, var_name:usize){
-
+    pub fn remove_var(&mut self, var_name: usize) {
         if !self.heap_memory.contains_key(&var_name) {
             panic!("[ UNDEFINED VARIABLE ADDRESS ]")
         }
 
         self.heap_memory.remove(&var_name);
-
     }
 
-    pub fn get_var(&mut self, var_name:usize) -> &Immediates {
-
+    pub fn get_var(&mut self, var_name: usize) -> &Immediates {
         self.heap_memory.get(&var_name).unwrap()
     }
 
-    pub fn pop_var(&mut self, var_name:usize) -> Immediates {
+    pub fn pop_var(&mut self, var_name: usize) -> Immediates {
         if 0 == self.heap_memory.len() {
             panic!("[ HEAP OVERFLOW ]")
         }
@@ -49,5 +44,4 @@ impl VMHeap {
     pub fn clear_heap(&mut self) {
         self.heap_memory.clear();
     }
-
 }
