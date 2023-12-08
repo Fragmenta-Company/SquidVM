@@ -1,6 +1,6 @@
 [package]
 name = "squid-vm"
-version = "0.4.2"
+version = "0.4.2-alpha"
 edition = "2021"
 repository = "https://github.com/Fragmenta-Company/SquidVM"
 authors = ["Nicolas Renan Machado Dias", "Fragmenta Company"]
