@@ -47,15 +47,9 @@ impl VMStack {
             )
         }
 
-        // if let Immediates::Integer(i) = data {
-        //
-        //     println!("Data: {}", i);
-        //
-        // }
-
         self.stack_memory.push(data);
         self.top += 1;
 
-        // println!("Push: {}", self.top);
+        // println!("{:?}", self.stack_memory);
     }
 }

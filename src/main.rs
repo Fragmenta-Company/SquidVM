@@ -1,9 +1,9 @@
-mod sqbinreader;
+mod sqdbinreader;
 mod vminternals;
-use crate::sqbinreader::FileReader;
-use crate::vminternals::GetLength;
+use crate::sqdbinreader::FileReader;
+// use crate::vminternals::GetLength;
 use byteorder;
-use byteorder::ReadBytesExt;
+// use byteorder::ReadBytesExt;
 use std::any::type_name;
 use std::io::{Read, Seek};
 use std::{env, process};
@@ -14,7 +14,7 @@ fn print_type_of<T>(_: &T) {
 }
 
 fn main() {
-    let mut vm = VMStarter::new(10);
+    let mut vm = VMStarter::new(512, 10);
 
     let args: Vec<String> = env::args().collect();
 

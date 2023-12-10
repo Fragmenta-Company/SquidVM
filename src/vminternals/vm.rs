@@ -1,9 +1,9 @@
-use crate::sqbinreader::FileReader;
+use crate::sqdbinreader::FileReader;
 // use log::debug;
 use crate::vminternals::immediates::Immediates::{
     self, Array, Binary, Boolean, Float, Integer, Null, String as TypeString, UInteger,
 };
-use crate::vminternals::{VMHeap, VMStack};
+use crate::vminternals::{VMHeap, VMRepository, VMStack};
 
 pub struct VMStarter {
     pc: usize,
@@ -11,6 +11,7 @@ pub struct VMStarter {
     instructions: Vec<u8>,
     stack: VMStack,
     heap: VMHeap,
+    repository: VMRepository,
     data: Immediates,
     pub running: bool,
 }
@@ -26,10 +27,11 @@ impl GetLength for VMStarter {
 }
 
 impl VMStarter {
-    pub fn new(heap_size: usize) -> VMStarter {
+    pub fn new(heap_size: usize, repository_size: usize) -> VMStarter {
         VMStarter {
             stack: VMStack::new(),
             heap: VMHeap::new(heap_size),
+            repository: VMRepository::new(repository_size),
             pc: 0x00,
             instruction: 0x00,
             data: Null,
@@ -383,13 +385,18 @@ impl VMStarter {
                 }
             }
             0x15 => {
-                println!("[ AddVar ]");
+                println!("[ AVP ]");
 
-                let var_value = self.stack.pop();
+                let var_pointer = self.stack.pop();
                 let var_name = self.stack.pop();
 
                 if let UInteger(var_name) = var_name {
-                    self.heap.add_var(var_name as usize, var_value)
+                    if let UInteger(var_pointer) = var_pointer {
+                        self.repository
+                            .add_var(var_name as usize, var_pointer as usize)
+                    } else {
+                        panic!("[ INVALID VAR POINTER ]");
+                    }
                 } else {
                     panic!("[ INVALID VAR NAME ]");
                 }
@@ -398,7 +405,7 @@ impl VMStarter {
                 println!("[ dVFD ]");
 
                 if let UInteger(var_name) = self.data {
-                    println!("{:?}", self.heap.get_var(var_name as usize));
+                    println!("Pointer: {}", self.repository.get_var(var_name as usize));
                 } else {
                     panic!("[ WRONG VARIABLE NAME ]");
                 }
@@ -407,7 +414,7 @@ impl VMStarter {
                 println!("[ dVFS ]");
 
                 if let UInteger(var_name) = self.stack.pop() {
-                    println!("{:?}", self.heap.get_var(var_name as usize));
+                    println!("Pointer: {}", self.repository.get_var(var_name as usize));
                 } else {
                     panic!("[ WRONG VARIABLE NAME ]");
                 }
