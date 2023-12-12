@@ -39,7 +39,6 @@ pub struct AllocatedObject {
 }
 
 impl VMHeap {
-
     pub fn new(heap_capacity: usize) -> Self {
         VMHeap {
             heap_memory: Vec::with_capacity(heap_capacity),
@@ -74,5 +73,4 @@ impl VMHeap {
     //
     //
     // }
-
 }
