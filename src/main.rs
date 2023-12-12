@@ -1,3 +1,8 @@
+//! <p style="text-align: center;">
+//!     <img src="https://d1drfx3idpovxr.cloudfront.net/squid-vm.svg"
+//!     alt="SquidVM Logo" width="250px" />
+//! </p>
+//!
 //! SquidVM is a VM made in Rust, having a high performant architecture.
 //!
 //! Considerations:

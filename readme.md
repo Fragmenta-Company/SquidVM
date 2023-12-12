@@ -1,7 +1,5 @@
-[//]: # (![SquidVM Logo]&#40;https://d1drfx3idpovxr.cloudfront.net/squid-vm.svg&#41;)
-
 <p align="center">
-<image src="https://d1drfx3idpovxr.cloudfront.net/squid-vm.svg" alt="SquidVM Logo" width="350px"></image>
+    <img src="https://d1drfx3idpovxr.cloudfront.net/squid-vm.svg" alt="SquidVM Logo" width="350px" />
 </p>
 
 # **What is SquidVM?**
