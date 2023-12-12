@@ -183,7 +183,7 @@ dependencies = [
 
 [[package]]
 name = "squid-vm"
-version = "0.5.0-alpha"
+version = "0.5.1-alpha"
 dependencies = [
  "arrayvec",
  "byteorder",
