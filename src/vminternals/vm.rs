@@ -1,70 +1,92 @@
 use crate::sqdbinreader::FileReader;
-// use log::debug;
 use crate::vminternals::immediates::Immediates::{
     self, Array, Binary, Boolean, Float, Integer, Null, String as TypeString, UInteger,
 };
 use crate::vminternals::{VMHeap, VMRepository, VMStack};
 
+/// The **VM's heart**.
+/// Contains _instructions_, _data_,
+/// _heap_, _stack_, the _program counter_,
+/// and all the other stuff for the VM to work.
 pub struct VMStarter {
-    pc: usize,
-    instruction: u8,
-    instructions: Vec<u8>,
-    stack: VMStack,
-    heap: VMHeap,
-    repository: VMRepository,
-    data: Immediates,
+    /// Tells if the VM is running or not.
     pub running: bool,
-}
 
-pub trait GetLength {
-    fn get_length(&mut self) -> usize;
-}
+    /// The program counter.
+    /// Contains the instruction pointer.
+    pc: usize,
 
-impl GetLength for VMStarter {
-    fn get_length(&mut self) -> usize {
-        self.stack.get_length()
-    }
+    /// Contains the instruction the VM is using at the moment.
+    instruction: u8,
+
+    /// _Is coordinated by the program counter_.
+    /// Contains all the instructions the VM will use.
+    /// Can be modified at runtime (**WIP**).
+    instructions: Vec<u8>,
+
+    /// Contains the data being used at the moment.
+    /// In the interpreter function it's changed frequently by the _program counter_.
+    data: Immediates,
+
+    /// Contains all the data the VM will use to run the program.
+    /// Controlled normally by the program counter.
+    data_vault: Vec<Immediates>,
+
+    /// This is the core of the VM
+    /// since it's used for almost all instructions.
+    /// Normally used for function frames and to store function locals.
+    stack: VMStack,
+
+    /// Contains all objects used by the program.
+    /// Normally used for dynamic programs that make use of
+    /// mutable variables or other objects that can change and/or need to be
+    /// stored for a longer time than in the stack.
+    heap: VMHeap,
+
+    /// It's used to store pointer for heap values, so it can be used as a global variable storage.
+    ///
+    /// <p style="color: #FF6E6E;">Warning:</p>
+    ///
+    /// * All objects used by the repository will **ignored** by the garbage collcetor.
+    /// * Only use global variables when they are needed, since they can be a security risk.
+    repository: VMRepository,
 }
 
 impl VMStarter {
+    /// Instantiates the VMStarter struct. Very straight forward.
     pub fn new(heap_size: usize, repository_size: usize) -> VMStarter {
         VMStarter {
+            running: true,
+            pc: 0x00,
+            instruction: 0x00,
+            instructions: Vec::new(),
+            data: Null,
+            data_vault: Vec::new(),
             stack: VMStack::new(),
             heap: VMHeap::new(heap_size),
             repository: VMRepository::new(repository_size),
-            pc: 0x00,
-            instruction: 0x00,
-            data: Null,
-            running: true,
-            instructions: Vec::new(),
         }
     }
 
-    pub fn interpreter(&mut self, instructions: Vec<u8>, data: &[Immediates]) {
-        self.instructions = instructions.clone();
-
-        while self.pc < self.instructions.len() {
-            let instruction = self.instructions[self.pc];
-            self.data = data[self.pc].clone();
-            self.instruction = instruction;
-            self.instructor(instruction);
-            self.pc += 1;
-            println!("{}", self.pc);
-        }
-
-        if self.pc > instructions.len() {
-            panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
-        }
-    }
-
-    pub fn interpreter2(&mut self, file_reader: FileReader) {
-        self.instructions = file_reader.instructions.clone();
+    /// Gets a FileReader instance and uses it to run the instructor function.
+    ///
+    /// It will run until the program counter is less than the instructions vector length.
+    ///
+    /// <p style="color: #FF6E6E;">Warning:</p>
+    ///
+    /// * Will panic out if the program counter is out of range.
+    /// * It always increments by one the program counter after
+    /// the interpreter is done executing the program, so it
+    /// doesn't run indefinitely if the file was encoded the wrong way.
+    pub fn interpreter(&mut self, file_reader: FileReader) {
+        self.instructions = file_reader.instructions;
+        self.data_vault = file_reader.data;
 
         println!("Instructions: {:?}", self.instructions);
 
         while self.pc < self.instructions.len() {
             let instruction = self.instructions[self.pc];
-            self.data = file_reader.data[self.pc].clone();
+            self.data = self.data_vault[self.pc].clone();
             self.instruction = instruction;
             self.pc += 1;
             self.instructor(instruction);
@@ -72,31 +94,22 @@ impl VMStarter {
             // println!("Length: {}", self.heap.heap_memory.len());
         }
 
-        if self.pc > file_reader.instructions.clone().len() {
+        if self.pc > self.instructions.len() {
             panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
         }
 
         self.pc += 1;
     }
 
-    pub fn push(&mut self, data: Immediates) {
-        self.stack.push(data);
-    }
-
-    pub fn pop(&mut self) -> Immediates {
-        self.stack.pop()
-    }
-
-    pub fn check_empty(&mut self) -> bool {
-        self.stack.check_empty()
-    }
-
-    pub fn instructor(&mut self, instruction: u8) {
+    /// Contains all the instructions and their implementations.
+    /// Receives an instruction and works around it.
+    ///
+    /// **Panics** if instruction is _unknown_.
+    fn instructor(&mut self, instruction: u8) {
         match instruction {
             0x00 => {
                 println!("[ HALT ]");
                 self.running = false;
-                return;
             }
             0x01 => {
                 println!("[ iADD ]");
@@ -108,7 +121,6 @@ impl VMStarter {
 
                     println!("{}", v1a + v2a);
                     self.stack.push(Integer(v1a + v2a));
-                    return;
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
@@ -121,7 +133,6 @@ impl VMStarter {
                 if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
                     println!("{}", v1a - v2a);
                     self.stack.push(Integer(v1a - v2a));
-                    return;
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
@@ -134,7 +145,6 @@ impl VMStarter {
                 if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
                     println!("{}", v1a * v2a);
                     self.stack.push(Integer(v1a * v2a));
-                    return;
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
@@ -150,8 +160,6 @@ impl VMStarter {
                     } else {
                         self.stack.push(Float(v1a as f64 / v2a as f64));
                     }
-
-                    return;
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
@@ -163,8 +171,6 @@ impl VMStarter {
 
                 if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
                     self.stack.push(Integer(v1a / v2a));
-
-                    return;
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
@@ -179,8 +185,6 @@ impl VMStarter {
                     println!("{}", v1a + v2a);
 
                     self.stack.push(Float(v1a + v2a));
-
-                    return;
                 } else {
                     panic!("[ NO FLOATS ]");
                 }
@@ -195,8 +199,6 @@ impl VMStarter {
                     println!("{}", v1a - v2a);
 
                     self.stack.push(Float(v1a - v2a));
-
-                    return;
                 } else {
                     panic!("[ NO FLOATS ]");
                 }
@@ -211,8 +213,6 @@ impl VMStarter {
                     println!("{}", v1a * v2a);
 
                     self.stack.push(Float(v1a * v2a));
-
-                    return;
                 } else {
                     panic!("[ NO FLOATS ]");
                 }
@@ -227,8 +227,6 @@ impl VMStarter {
                     println!("{}", v1a / v2a);
 
                     self.stack.push(Float(v1a / v2a));
-
-                    return;
                 } else {
                     panic!("[ NO FLOATS ]");
                 }
@@ -238,32 +236,18 @@ impl VMStarter {
 
                 let pdts = &self.data;
 
-                // if let Integer(i) = pdts {
-                //
-                //     println!("{}", i);
-                //
-                // }
-
                 self.stack.push(pdts.clone());
-
-                return;
-
-                // println!("{}", self.get_length());
             }
             0x0B => {
                 println!("[ PDFS ]");
 
                 self.data = self.stack.pop();
-
-                return;
             }
             0x0C => {
                 println!("[ JMPFD ]");
 
                 if let UInteger(i) = self.data {
                     self.pc = i as usize;
-
-                    return;
                 } else {
                     panic!("[ WRONG ADDRESS ]");
                 }
@@ -271,10 +255,8 @@ impl VMStarter {
             0x0D => {
                 println!("[ JMPFS ]");
 
-                if let UInteger(i) = self.pop() {
+                if let UInteger(i) = self.stack.pop() {
                     self.pc = i as usize;
-
-                    return;
                 } else {
                     panic!("[ WRONG ADDRESS ]");
                 }

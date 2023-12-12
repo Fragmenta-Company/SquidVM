@@ -1,9 +1,10 @@
 [package]
 name = "squid-vm"
-version = "0.5.0-alpha"
+version = "0.5.1-alpha"
 edition = "2021"
 repository = "https://github.com/Fragmenta-Company/SquidVM"
 authors = ["Nicolas Renan Machado Dias", "Fragmenta Company"]
+description = "SquidVM is a VM made in Rust, having implemented a high performant architecture."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

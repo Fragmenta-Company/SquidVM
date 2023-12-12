@@ -6,12 +6,15 @@ use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::{fs, process};
 
+/// Holds all the instructions and data that
+/// the VM will use in order to function properly.
 #[derive(Clone)]
 pub struct FileReader {
     pub instructions: Vec<u8>,
     pub data: Vec<Immediates>,
 }
 
+/// Converts vector of bytes into UTF8 compatible strings.
 fn to_string(string: Vec<u8>) -> String {
     match String::from_utf8(string) {
         Ok(uf8string) => uf8string,
@@ -21,7 +24,17 @@ fn to_string(string: Vec<u8>) -> String {
     }
 }
 
+/// FileReader struct implementation
 impl FileReader {
+    /// Reads file_location and gets file contents.
+    /// The binary file is converted into a VM readble form,
+    /// Thus leading to two objects:
+    /// * instructions: Contains the instructions for the VM to run;
+    /// * data: Contains the data that each instruction will use.
+    ///
+    /// For example, if the instruction is for adding to the stack,
+    /// it will probably contain some data info, like Integers,
+    /// Strings, Floats or even Null values.
     pub fn new(file_location: String) -> FileReader {
         let mut instructions: Vec<u8> = Vec::new();
         let mut data: Vec<Immediates> = Vec::new();
@@ -36,7 +49,7 @@ impl FileReader {
 
         let mut offset = 0x00;
         let mut counter = 0;
-        let filelength = fs::metadata(file_location.clone())
+        let filelength = fs::metadata(file_location)
             .expect("INVALID FILE METADATA")
             .len();
         // println!("{filelength}");
@@ -49,13 +62,8 @@ impl FileReader {
             match file.read_exact(&mut buffer) {
                 Ok(_) => {}
                 Err(e) => {
-                    // if e.to_string().contains("failed to fill whole buffer") {
-                    //     buffer[0] = 0;
-                    //     buffer[1] = 0;
-                    // } else {
                     eprintln!("\x1B[31m{}\x1b[0m", e);
                     process::exit(2);
-                    // }
                 }
             };
 
@@ -253,7 +261,7 @@ impl FileReader {
 
             // println!("{offset}");
 
-            let mut crsr_minus = crsr.clone();
+            let mut crsr_minus = crsr;
             crsr_minus += 2;
 
             if filelength == crsr_minus {

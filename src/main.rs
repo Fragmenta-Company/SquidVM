@@ -1,18 +1,30 @@
+//! SquidVM is a VM made in Rust, having a high performant architecture.
+//!
+//! Considerations:
+//! - The VM is in the process of being released as a full version (1.0.0)!
+//! - It is not production ready!
+//! But you can use it for your projects if you want.
+//! - You can fork the VM, it's free for everyone!
+//! - All the collaborations made for the main project will need to have the same license!
+//!
+//! I still have lots of things
+//!
+//!     todo!(); //in this project
+
+#![warn(missing_docs)]
+
+/// Contains the sqdbin binary files reader implementation
 mod sqdbinreader;
+
+/// Contains the entirety of the VM internal implementation
 mod vminternals;
 use crate::sqdbinreader::FileReader;
-// use crate::vminternals::GetLength;
-use byteorder;
-// use byteorder::ReadBytesExt;
-use std::any::type_name;
-use std::io::{Read, Seek};
 use std::{env, process};
 use vminternals::VMStarter;
 
-fn print_type_of<T>(_: &T) {
-    println!("{}", type_name::<T>())
-}
-
+/// Get arguments from the command and creates a VMStarter object.
+/// Run vm.interpreter in loop while vm is running.
+/// File is read and converted to VM readble objects before the interpreter starts.
 fn main() {
     let mut vm = VMStarter::new(512, 10);
 
@@ -20,11 +32,11 @@ fn main() {
 
     if args.len() > 1 {
         let fileread = FileReader::new(args[1].clone());
-        while vm.running == true {
-            vm.interpreter2(fileread.clone());
+        while vm.running {
+            vm.interpreter(fileread.clone());
         }
     } else {
-        eprintln!("\x1B[31m{}\x1b[0m", "File not specified!");
+        eprintln!("\x1B[31mFile not specified!\x1b[0m");
         process::exit(3);
     }
 
