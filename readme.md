@@ -4,7 +4,6 @@
 
 ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/Fragmenta-Company/SquidVM/production)
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Fragmenta-Company/SquidVM)
-
 ![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/Fragmenta-Company/SquidVM?label=Last%20pre-release)
 ![GitHub License](https://img.shields.io/github/license/Fragmenta-Company/SquidVM)
 
