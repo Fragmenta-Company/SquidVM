@@ -2,6 +2,12 @@
     <img src="https://d1drfx3idpovxr.cloudfront.net/squid-vm.svg" alt="SquidVM Logo" width="350px" />
 </p>
 
+![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/Fragmenta-Company/SquidVM/production)
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Fragmenta-Company/SquidVM)
+
+![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/Fragmenta-Company/SquidVM?label=Last%20pre-release)
+![GitHub License](https://img.shields.io/github/license/Fragmenta-Company/SquidVM)
+
 # **What is SquidVM?**
 
 SquidVM is a Stack-based VM (just like _Java's JVM_).
