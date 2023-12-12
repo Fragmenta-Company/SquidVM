@@ -14,12 +14,15 @@ It's made from the ground up using Rust for its implementation.
 
 The VM will contain a programming language with the name Squid.
 
+[Access documentation here](https://squidvmdocs.fragmenta.org/)
+
 ## What is a .sqdbin file?
 
 It's the binary file that contains the instructions and data the VM will 
 use to run your program!
 
 Want to know more about the instruction set, stack and heap implemenation?
+[Access the documentation here](https://squidvmdocs.fragmenta.org/).
 
 I'll probably make a simple wiki for that in some time! _Just wait for it._
 
