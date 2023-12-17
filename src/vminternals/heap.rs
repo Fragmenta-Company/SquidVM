@@ -4,7 +4,7 @@ use Colors::{Black, Gray, White};
 
 /// Heap implementation
 pub struct VMHeap {
-    heap_memory: Vec<AtomicPtr<AllocatedObject>>,
+    heap_memory: Vec<AtomicPtr<Box<AllocatedObject>>>,
     heap_capacity: usize,
 }
 
