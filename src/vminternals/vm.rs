@@ -4,6 +4,35 @@ use crate::vminternals::immediates::Immediates::{
 };
 use crate::vminternals::{VMHeap, VMRepository, VMStack};
 
+fn print_any(printable: Immediates) {
+    match printable {
+        Null => {
+            print!("Null");
+        }
+        Boolean(b) => {
+            print!("{}", b);
+        }
+        UInteger(ui) => {
+            print!("{}", ui);
+        }
+        Integer(i) => {
+            print!("{}", i);
+        }
+        Float(f) => {
+            print!("{}", f);
+        }
+        TypeString(s) => {
+            print!("{}", s);
+        }
+        Binary(bin) => {
+            print!("{:?}", bin);
+        }
+        Array(arr) => {
+            print!("{:?}", arr)
+        }
+    }
+}
+
 /// The **VM's heart**.
 /// Contains _instructions_, _data_,
 /// _heap_, _stack_, the _program counter_,
@@ -82,7 +111,7 @@ impl VMStarter {
         self.instructions = file_reader.instructions;
         self.data_vault = file_reader.data;
 
-        println!("Instructions: {:?}", self.instructions);
+        dev_print!("Instructions: {:?}", self.instructions);
 
         while self.pc < self.instructions.len() {
             let instruction = self.instructions[self.pc];
@@ -90,7 +119,7 @@ impl VMStarter {
             self.instruction = instruction;
             self.pc += 1;
             self.instructor(instruction);
-            println!("{}", self.pc);
+            dev_print!("{}", self.pc);
             // println!("Length: {}", self.heap.heap_memory.len());
         }
 
@@ -108,49 +137,49 @@ impl VMStarter {
     fn instructor(&mut self, instruction: u8) {
         match instruction {
             0x00 => {
-                println!("[ HALT ]");
+                dev_print!("[ HALT ]");
                 self.running = false;
             }
             0x01 => {
-                println!("[ iADD ]");
+                dev_print!("[ iADD ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
                 if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
-                    println!("{} {}", v1a, v2a);
+                    dev_print!("{} {}", v1a, v2a);
 
-                    println!("{}", v1a + v2a);
+                    dev_print!("{}", v1a + v2a);
                     self.stack.push(Integer(v1a + v2a));
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
             }
             0x02 => {
-                println!("[ iSUB ]");
+                dev_print!("[ iSUB ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
                 if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
-                    println!("{}", v1a - v2a);
+                    dev_print!("{}", v1a - v2a);
                     self.stack.push(Integer(v1a - v2a));
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
             }
             0x03 => {
-                println!("[ iMUL ]");
+                dev_print!("[ iMUL ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
                 if let (Integer(v1a), Integer(v2a)) = (v1, v2) {
-                    println!("{}", v1a * v2a);
+                    dev_print!("{}", v1a * v2a);
                     self.stack.push(Integer(v1a * v2a));
                 } else {
                     panic!("[ NO INTEGERS ]");
                 }
             }
             0x04 => {
-                println!("[ iDVD ]");
+                dev_print!("[ iDVD ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
@@ -165,7 +194,7 @@ impl VMStarter {
                 }
             }
             0x05 => {
-                println!("[ FiDVD ]");
+                dev_print!("[ FiDVD ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
@@ -176,13 +205,13 @@ impl VMStarter {
                 }
             }
             0x06 => {
-                println!("[ fADD ]");
+                dev_print!("[ fADD ]");
 
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
                 if let (Float(v1a), Float(v2a)) = (v1, v2) {
-                    println!("{}", v1a + v2a);
+                    dev_print!("{}", v1a + v2a);
 
                     self.stack.push(Float(v1a + v2a));
                 } else {
@@ -190,13 +219,13 @@ impl VMStarter {
                 }
             }
             0x07 => {
-                println!("[ fSUB ]");
+                dev_print!("[ fSUB ]");
 
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
                 if let (Float(v1a), Float(v2a)) = (v1, v2) {
-                    println!("{}", v1a - v2a);
+                    dev_print!("{}", v1a - v2a);
 
                     self.stack.push(Float(v1a - v2a));
                 } else {
@@ -204,13 +233,13 @@ impl VMStarter {
                 }
             }
             0x08 => {
-                println!("[ fMUL ]");
+                dev_print!("[ fMUL ]");
 
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
                 if let (Float(v1a), Float(v2a)) = (v1, v2) {
-                    println!("{}", v1a * v2a);
+                    dev_print!("{}", v1a * v2a);
 
                     self.stack.push(Float(v1a * v2a));
                 } else {
@@ -218,13 +247,13 @@ impl VMStarter {
                 }
             }
             0x09 => {
-                println!("[ fDVD ]");
+                dev_print!("[ fDVD ]");
 
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
 
                 if let (Float(v1a), Float(v2a)) = (v1, v2) {
-                    println!("{}", v1a / v2a);
+                    dev_print!("{}", v1a / v2a);
 
                     self.stack.push(Float(v1a / v2a));
                 } else {
@@ -232,19 +261,19 @@ impl VMStarter {
                 }
             }
             0x0A => {
-                println!("[ PDTS ]");
+                dev_print!("[ PDTS ]");
 
                 let pdts = &self.data;
 
                 self.stack.push(pdts.clone());
             }
             0x0B => {
-                println!("[ PDFS ]");
+                dev_print!("[ PDFS ]");
 
                 self.data = self.stack.pop();
             }
             0x0C => {
-                println!("[ JMPFD ]");
+                dev_print!("[ JMPFD ]");
 
                 if let UInteger(i) = self.data {
                     self.pc = i as usize;
@@ -253,7 +282,7 @@ impl VMStarter {
                 }
             }
             0x0D => {
-                println!("[ JMPFS ]");
+                dev_print!("[ JMPFS ]");
 
                 if let UInteger(i) = self.stack.pop() {
                     self.pc = i as usize;
@@ -262,16 +291,16 @@ impl VMStarter {
                 }
             }
             0x0E => {
-                print!("[ PRTFS ]");
+                dev_print!("[ PRTFS ]");
 
                 if let TypeString(s) = self.stack.pop() {
-                    println!("{s}");
+                    print!("{s}");
                 } else {
                     panic!("[ NO STRING ]");
                 }
             }
             0x0F => {
-                println!("[ PRTFD ]");
+                dev_print!("[ PRTFD ]");
 
                 if let TypeString(s) = self.data.clone() {
                     print!("{s}");
@@ -280,7 +309,7 @@ impl VMStarter {
                 }
             }
             0x10 => {
-                println!("[ iExp ]");
+                dev_print!("[ iExp ]");
 
                 if let (UInteger(v2), Integer(v1)) = (self.stack.pop(), self.stack.pop()) {
                     self.stack.push(Integer(v1.pow(v2 as u32)));
@@ -289,7 +318,7 @@ impl VMStarter {
                 }
             }
             0x11 => {
-                println!("[ fExp ]");
+                dev_print!("[ fExp ]");
 
                 if let (Float(v2), Float(v1)) = (self.stack.pop(), self.stack.pop()) {
                     self.stack.push(Float(v1.powf(v2)));
@@ -298,7 +327,7 @@ impl VMStarter {
                 }
             }
             0x12 => {
-                println!("[ fiExp ]");
+                dev_print!("[ fiExp ]");
 
                 if let (Integer(v2), Float(v1)) = (self.stack.pop(), self.stack.pop()) {
                     self.stack.push(Float(v1.powi(v2 as i32)));
@@ -307,67 +336,17 @@ impl VMStarter {
                 }
             }
             0x13 => {
-                println!("[ PRTAFD ]");
+                dev_print!("[ PRTAFD ]");
 
-                match self.data.clone() {
-                    Null => {
-                        print!("Null");
-                    }
-                    Boolean(b) => {
-                        print!("{}", b);
-                    }
-                    UInteger(ui) => {
-                        print!("{}", ui);
-                    }
-                    Integer(i) => {
-                        print!("{}", i);
-                    }
-                    Float(f) => {
-                        print!("{}", f);
-                    }
-                    TypeString(s) => {
-                        print!("{}", s);
-                    }
-                    Binary(bin) => {
-                        print!("{:?}", bin);
-                    }
-                    Array(arr) => {
-                        print!("{:?}", arr)
-                    }
-                }
+                print_any(self.data.clone());
             }
             0x14 => {
-                println!("[ PRTAFS ]");
+                dev_print!("[ PRTAFS ]");
 
-                match self.stack.pop() {
-                    Null => {
-                        print!("Null");
-                    }
-                    Boolean(b) => {
-                        print!("{}", b);
-                    }
-                    UInteger(ui) => {
-                        print!("{}", ui);
-                    }
-                    Integer(i) => {
-                        print!("{}", i);
-                    }
-                    Float(f) => {
-                        print!("{}", f);
-                    }
-                    TypeString(s) => {
-                        println!("{}", s);
-                    }
-                    Binary(bin) => {
-                        println!("{:?}", bin);
-                    }
-                    Array(arr) => {
-                        print!("{:?}", arr)
-                    }
-                }
+                print_any(self.stack.pop());
             }
             0x15 => {
-                println!("[ AVP ]");
+                dev_print!("[ AVP ]");
 
                 let var_pointer = self.stack.pop();
                 let var_name = self.stack.pop();
@@ -384,7 +363,7 @@ impl VMStarter {
                 }
             }
             0x16 => {
-                println!("[ dVFD ]");
+                dev_print!("[ dVFD ]");
 
                 if let UInteger(var_name) = self.data {
                     println!("Pointer: {}", self.repository.get_var(var_name as usize));
@@ -393,7 +372,7 @@ impl VMStarter {
                 }
             }
             0x17 => {
-                println!("[ dVFS ]");
+                dev_print!("[ dVFS ]");
 
                 if let UInteger(var_name) = self.stack.pop() {
                     println!("Pointer: {}", self.repository.get_var(var_name as usize));
