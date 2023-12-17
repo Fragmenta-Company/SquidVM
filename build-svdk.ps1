@@ -23,18 +23,18 @@ if ($files.Count -gt 0) {
 }
 
 #Build x86_64 Windows svdk executable
-& {cargo build --target x86_64-pc-windows-msvc --release --features debug} 2>&1 | Out-String -OutVariable x64WindowsLog | Out-Null;
+& {cargo build --features devkit --target x86_64-pc-windows-msvc --release} 2>&1 | Out-String -OutVariable x64WindowsLog | Out-Null;
 $x64WindowsLog | Out-File -FilePath ./target/logs/svdk-x86_64-windows-build.log;
 
 if(-not $LASTEXITCODE -ne 0) {
-    Copy-Item -Path ./target/x86_64-pc-windows-msvc/svdk/squid-vm.exe -Destination ./target/svdk/svdk-x86_64-pc-windows-msvc.exe
+    Copy-Item -Path ./target/x86_64-pc-windows-msvc/release/squid-vm.exe -Destination ./target/svdk/svdk-x86_64-pc-windows-msvc.exe
     Write-Output "x86_64-pc-windows-msvc built successfully!";
 } else {
     Write-Output "x86_64-pc-windows-msvc building process failed! Check x86_64-windows-build.log file";
 }
 
 #Build x86_64 Linux svdk executable
-& {cross build --target x86_64-unknown-linux-gnu --release --features debug} 2>&1 | Out-String -OutVariable x64LinuxLog | Out-Null;
+& {cross build --features devkit --target x86_64-unknown-linux-gnu --release} 2>&1 | Out-String -OutVariable x64LinuxLog | Out-Null;
 $x64LinuxLog | Out-File -FilePath ./target/logs/svdk-x86_64-linux-build.log;
 
 if (-not $LASTEXITCODE -ne 0) {
@@ -44,7 +44,7 @@ if (-not $LASTEXITCODE -ne 0) {
     Write-Output "x86_64-unknown-linux-gnu building process failed! Check x86_64-linux-build.log file";
 }
 #Build aarch64 Linux svdk executable
-& {cross build --target aarch64-unknown-linux-gnu --release --features debug} 2>&1 | Out-String -OutVariable aarch64LinuxLog | Out-Null;
+& {cross build --features devkit --target aarch64-unknown-linux-gnu --release} 2>&1 | Out-String -OutVariable aarch64LinuxLog | Out-Null;
 $aarch64LinuxLog | Out-File -FilePath ./target/logs/svdk-aarch64-linux-build.log;
 
 if (-not $LASTEXITCODE -ne 0) {
@@ -54,7 +54,7 @@ if (-not $LASTEXITCODE -ne 0) {
     Write-Output "aarch64-unknown-linux-gnu building process failed! Check aarch64-linux-build.log file";
 }
 #Build armv7hf Linux svdk executable
-& {cross build --target armv7-unknown-linux-gnueabihf --release --features debug} 2>&1 | Out-String -OutVariable armv7LinuxLog | Out-Null;
+& {cross build --features devkit --target armv7-unknown-linux-gnueabihf --release} 2>&1 | Out-String -OutVariable armv7LinuxLog | Out-Null;
 $armv7LinuxLog | Out-File -FilePath ./target/logs/svdk-armv7-linux-build.log;
 
 if (-not $LASTEXITCODE -ne 0) {
