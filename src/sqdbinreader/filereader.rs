@@ -6,6 +6,8 @@ use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::{fs, process};
 
+const SQDBIN: &str = ".sqdbin";
+
 /// Holds all the instructions and data that
 /// the VM will use in order to function properly.
 #[derive(Clone)]
@@ -35,7 +37,15 @@ impl FileReader {
     /// For example, if the instruction is for adding to the stack,
     /// it will probably contain some data info, like Integers,
     /// Strings, Floats or even Null values.
-    pub fn new(file_location: String) -> FileReader {
+    pub fn new(mut file_location: String) -> FileReader {
+        if file_location.ends_with('\\') || file_location.ends_with('/') {
+            file_location.pop();
+        }
+
+        if !file_location.ends_with(SQDBIN) {
+            file_location.push_str(SQDBIN);
+        }
+
         let mut instructions: Vec<u8> = Vec::new();
         let mut data: Vec<Immediates> = Vec::new();
         let file = File::open(file_location.clone());
@@ -71,9 +81,11 @@ impl FileReader {
                 break;
             }
 
-            println!(
+            dev_print!(
                 "Cursor: {}, Buffer: {:?}, Counter: {}",
-                crsr, buffer, counter
+                crsr,
+                buffer,
+                counter
             );
             //
             // println!("Idk");
