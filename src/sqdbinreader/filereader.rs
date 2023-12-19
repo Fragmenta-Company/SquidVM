@@ -26,6 +26,7 @@ fn to_string(string: Vec<u8>) -> String {
     }
 }
 
+#[allow(unused_assignments)]
 /// FileReader struct implementation
 impl FileReader {
     /// Reads file_location and gets file contents.
@@ -37,7 +38,7 @@ impl FileReader {
     /// For example, if the instruction is for adding to the stack,
     /// it will probably contain some data info, like Integers,
     /// Strings, Floats or even Null values.
-    pub fn new(mut file_location: String) -> FileReader {
+    pub fn new(mut file_location: String, filearg:bool) -> FileReader {
         if file_location.ends_with('\\') || file_location.ends_with('/') {
             file_location.pop();
         }
@@ -65,7 +66,7 @@ impl FileReader {
         // println!("{filelength}");
 
         loop {
-            let crsr = file.seek(SeekFrom::Start(offset)).unwrap();
+            let mut crsr = file.seek(SeekFrom::Start(offset)).unwrap();
 
             let mut buffer = [0u8, 0u8];
 
@@ -76,6 +77,141 @@ impl FileReader {
                     process::exit(2);
                 }
             };
+
+            if filearg {
+
+                match buffer[0] {
+                    1 => {
+
+                        offset += 1;
+
+                        crsr = file.seek(SeekFrom::Start(offset)).unwrap();
+
+                        let major = match file.read_u32::<LittleEndian>() {
+                            Ok(byte) => {
+                                byte
+                            }
+                            Err(err) => {
+                                dev_print!("Error: {:?}", err);
+                                eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
+                                process::exit(2);
+                            }
+                        };
+
+                        offset+=4;
+
+                        let minor = match file.read_u16::<LittleEndian>() {
+                            Ok(byte) => {
+                                byte
+                            }
+                            Err(err) => {
+                                dev_print!("Error: {:?}", err);
+                                eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
+                                process::exit(2);
+                            }
+                        };
+
+                        offset+=2;
+
+                        let patch = if let Ok(bytes) = file.read_u16::<LittleEndian>() {
+                            bytes
+                        } else if let Err(err) = file.read_u16::<LittleEndian>() {
+                                dev_print!("Error: {:?}", err);
+                                eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
+                                process::exit(2);
+                        } else {
+                            unreachable!()
+                        };
+
+                        offset+=2;
+
+                        let details = if let Ok(byte) = file.read_u8() {
+                            byte
+                        } else if let Err(err) = file.read_u8() {
+                            dev_print!("Error: {:?}", err);
+                            eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
+                            process::exit(2);
+                        } else {
+                            unreachable!()
+                        };
+
+                        let mut counter = 0;
+                        let mut byte_string = vec![0; 6];
+
+                        while counter < 22 {
+                            byte_string.push(match file.read_u8() {
+                                Ok(int) => {
+                                    int
+                                }
+                                Err(err) => {
+                                    dev_print!("Error: {:?}", err);
+                                    eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
+                                    process::exit(2);
+                                }
+                            });
+                            offset += 1;
+                            counter += 1;
+                        }
+
+                        offset += 1;
+
+                        let details = match details {
+                            0 => {
+                                "Release"
+                            }
+                            1 => {
+                                "Alpha"
+                            }
+                            2 => {
+                                "Beta"
+                            }
+                            _ => {
+                                "Unknown"
+                            }
+                        };
+
+                        let version = format!("Compatible with {}.{}.{}-{} and up until next major",
+                        major, minor, patch, details);
+
+                        println!("{version}");
+                        println!("\x1B[31mIn alpha and beta versions the VM will change a lot, so most things will change.");
+                        println!("Binaries for SquidVM 0.7.0-alpha and up will not be compatible with old versions\x1b[0m");
+
+                        let compiler = match String::from_utf8(byte_string) {
+                            Ok(string) => {
+                                string
+                            }
+                            Err(err) => {
+                                dev_print!("Error: {:?}", err);
+                                eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
+                                process::exit(2);
+                            }
+                        };
+
+                        println!("Compiled with: {compiler}");
+
+                        file.read_exact(&mut buffer).expect("INVALID FILE DATA!");
+
+                    }
+                    _ => {
+                        println!("File doesn't include metadata!");
+                    }
+                }
+
+                process::exit(0);
+
+            }
+
+            if counter < 1 && buffer[0] == 1 {
+
+                offset+=32;
+
+                crsr = file.seek(SeekFrom::Start(offset)).unwrap();
+
+                file.read_exact(&mut buffer).expect("INVALID FILE DATA!");
+
+
+            }
 
             if counter > 1 && crsr == 0 {
                 break;
@@ -150,7 +286,7 @@ impl FileReader {
                             offset += 2;
                         }
                         0x01 => {
-                            file.read_exact(&mut buffer).expect("INVALID FILE!");
+                            file.read_exact(&mut buffer).expect("INVALID FILE DATA!");
                             data.push(Boolean(if buffer[1] == 1 {
                                 true
                             } else if buffer[1] == 0 {

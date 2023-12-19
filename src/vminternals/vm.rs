@@ -33,6 +33,7 @@ fn print_any(printable: Immediates) {
     }
 }
 
+#[cfg(not(feature = "devkit"))]
 /// The **VM's heart**.
 /// Contains _instructions_, _data_,
 /// _heap_, _stack_, the _program counter_,
@@ -78,6 +79,20 @@ pub struct VMStarter {
     ///
     /// * All objects used by the repository will **ignored** by the garbage collcetor.
     /// * Only use global variables when they are needed, since they can be a security risk.
+    repository: VMRepository,
+}
+
+#[cfg(feature = "devkit")]
+#[derive(Debug)]
+pub struct VMStarter {
+    pub running: bool,
+    pc: usize,
+    instruction: u8,
+    instructions: Vec<u8>,
+    data: Immediates,
+    data_vault: Vec<Immediates>,
+    stack: VMStack,
+    heap: VMHeap,
     repository: VMRepository,
 }
 

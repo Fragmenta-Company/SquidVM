@@ -1,8 +1,16 @@
 use fnv::FnvHashMap;
 
+#[cfg(feature = "devkit")]
+#[derive(Debug)]
+pub struct VMRepository {
+    pub repo_var_pointers: FnvHashMap<usize, usize>,
+    pub repo_capacity: usize,
+}
+
 /// ## Repository struct implementation.
 ///
 /// Used mostly for global variables.
+#[cfg(not(feature = "devkit"))]
 pub struct VMRepository {
     /// Contains pointers to the heap
     pub repo_var_pointers: FnvHashMap<usize, usize>,

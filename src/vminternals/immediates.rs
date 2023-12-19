@@ -29,6 +29,7 @@ pub enum ImmediatesType {
 /// ## Creates a function to serialize Immediates to sequences of bytes
 pub trait Serialize {
     fn serialize(&self) -> Vec<u8>;
+    fn serialize_heap(&self) -> Vec<u8>;
 }
 
 /// ## Used for turning Immediates to Types, so you can get Types from Immediates values
@@ -84,6 +85,33 @@ impl Serialize for Immediates {
             Immediates::Binary(bin) => bin.clone(),
             Immediates::Array(_) => {
                 panic!("Array not permited for instance");
+            }
+        }
+    }
+
+    fn serialize_heap(&self) -> Vec<u8> {
+        match self {
+            Immediates::Null => vec![0u8; mem::size_of::<Immediates>()],
+            Immediates::Boolean(booval) => bool_to_bytes(*booval),
+            Immediates::Integer(i) => {
+                let mut bytes = vec![0u8; mem::size_of::<i64>()];
+                bytes.copy_from_slice(&i.to_le_bytes());
+                bytes
+            }
+            Immediates::UInteger(ui) => {
+                let mut bytes = vec![0u8; mem::size_of::<u64>()];
+                bytes.copy_from_slice(&ui.to_le_bytes());
+                bytes
+            }
+            Immediates::Float(f) => {
+                let mut bytes = vec![0u8; mem::size_of::<f64>()];
+                bytes.copy_from_slice(&f.to_le_bytes());
+                bytes
+            }
+            Immediates::String(string) => string.clone().into_bytes(),
+            Immediates::Binary(bin) => bin.clone(),
+            Immediates::Array(_) => {
+                panic!("Array not permitted for instance");
             }
         }
     }
