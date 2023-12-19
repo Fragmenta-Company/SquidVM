@@ -47,6 +47,37 @@ use vminternals::VMStarter;
 // use crate::vminternals::immediates::{Immediates, Serialize};
 // use crate::vminternals::VMHeap;
 
+/// Set the target constant to show when using `./squid-vm(.exe) --version`.
+#[cfg(target_os = "windows")]
+#[cfg(target_arch = "x86_64")]
+const TARGET: &str = "Windows x86_64";
+
+/// Set the target constant to show when using `./squid-vm(.exe) --version`.
+#[cfg(target_os = "linux")]
+#[cfg(target_arch = "x86_64")]
+const TARGET: &str = "Linux x86_64";
+
+/// Set the target constant to show when using `./squid-vm(.exe) --version`.
+#[cfg(target_os = "linux")]
+#[cfg(target_arch = "aarch64")]
+const TARGET: &str = "Linux ARMv8";
+
+/// Set the target constant to show when using `./squid-vm(.exe) --version`.
+#[cfg(target_os = "linux")]
+#[cfg(target_arch = "arm")]
+const TARGET: &str = "Linux ARMv7";
+
+/// Set the target constant to show when using `./squid-vm(.exe) --version`.
+#[cfg(not(target_arch = "x86_64"))]
+#[cfg(not(target_arch = "aarch64"))]
+#[cfg(not(target_arch = "arm"))]
+const TARGET: &str = "other platform";
+
+/// Set the target constant to show when using `./squid-vm(.exe) --version`.
+#[cfg(not(target_os = "windows"))]
+#[cfg(not(target_os = "linux"))]
+const TARGET: &str = "other";
+
 /// Converts strings with postfixes (GB, MB, KB or B) into a value in bytes
 fn string_to_bytesize(string: String) -> Result<usize, &'static str> {
     // dev_print!("Before pop: {}", string);
@@ -109,7 +140,7 @@ fn string_to_bytesize(string: String) -> Result<usize, &'static str> {
 
 /// Argument Parser
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
+#[command(author, about, long_about = None)]
 struct Args {
     /// Binary File Input | Don't need extension (.sqdbin)
     #[arg(short, long, value_name = "FILE", conflicts_with = "sar")]
@@ -128,15 +159,24 @@ struct Args {
     repo_size: usize,
 
     /// Check the binary version for binaries with metadata included | Works with bin or sar
-    #[arg(long, value_name = "FILE", requires = "bin", requires = "sar", short = 'v')]
-    binver: bool
+    #[arg(
+        long,
+        value_name = "FILE",
+        requires = "bin",
+        requires = "sar",
+        short = 'v'
+    )]
+    binver: bool,
+
+    /// Shows the SquidVM version | SquidVM <major>.<minor>.<patch>-<details> for <OS> <arch>
+    #[arg(long, short = 'V')]
+    version: bool,
 }
 
 /// Get arguments from the command and creates a VMStarter object.
 /// Run vm.interpreter in loop while vm is running.
 /// File is read and converted to VM readble objects before the interpreter starts.
 fn main() {
-
     // let mut heap_test = VMHeap::new(123);
     //
     // let alloc = heap_test.malloc(Immediates::Float(13.4));
@@ -150,6 +190,11 @@ fn main() {
     let mut fileread: Option<FileReader> = None;
 
     let args = Args::parse();
+
+    if args.version {
+        println!("{} {} for {}", "SquidVM", env!("CARGO_PKG_VERSION"), TARGET);
+        process::exit(0);
+    }
 
     let maxmem;
 
@@ -188,7 +233,6 @@ fn main() {
     if let Some(bin) = bin {
         fileread = Some(FileReader::new(bin, args.binver));
     } else if let Some(_sar) = sar {
-
     }
 
     if let Some(fileread) = fileread {
