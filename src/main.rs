@@ -168,7 +168,7 @@ struct Args {
     )]
     binver: bool,
 
-    /// Shows the SquidVM version | SquidVM <major>.<minor>.<patch>-<details> for <OS> <arch>
+    /// Shows the SquidVM version | SquidVM |major|.|minor|.|patch|-|details| for |OS| |arch|
     #[arg(long, short = 'V')]
     version: bool,
 }
