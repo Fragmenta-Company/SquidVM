@@ -3,37 +3,56 @@ use std::mem;
 /// ## Immediates are the objects types containing the value inside them
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
 pub enum Immediates {
+    /// Null type
     Null,
+    /// Boolean type
     Boolean(bool),
+    /// Integer (i64) type
     Integer(i64),
+    /// UInteger (u64) type
     UInteger(u64),
+    /// Float (f64) type
     Float(f64),
+    /// String type
     String(String),
+    /// Binary (`Vec<u8>`) type
     Binary(Vec<u8>),
+    /// Array of Immediates type
     Array(Vec<Immediates>),
 }
 
 /// ## ImmediatesType are the objects types NOT containing the value inside them, just the type.
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
 pub enum ImmediatesType {
+    /// Null type
     Null,
+    /// Boolean type
     Boolean,
+    /// Integer (i64) type
     Integer,
+    /// UInteger (u64) type
     UInteger,
+    /// Float (f64) type
     Float,
+    /// String type
     String,
+    /// Binary (`Vec<u8>`) type
     Binary,
+    /// Array of Immediates type
     Array,
 }
 
 /// ## Creates a function to serialize Immediates to sequences of bytes
 pub trait Serialize {
+    /// Serialize Immediates to Vector of bytes (`Vec<u8>`)
     fn serialize(&self) -> Vec<u8>;
+    /// Serialize Immediates to Vector of bytes (`Vec<u8>`) for the heap
     fn serialize_heap(&self) -> Vec<u8>;
 }
 
 /// ## Used for turning Immediates to Types, so you can get Types from Immediates values
 pub trait ImmediateType {
+    /// Immediates to ImmediatesType
     fn to_immediate_type(&self) -> ImmediatesType;
 }
 
