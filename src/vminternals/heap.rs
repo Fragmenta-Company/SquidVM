@@ -1,6 +1,7 @@
 use std::mem;
 use crate::vminternals::immediates::*;
 use std::sync::atomic::{AtomicPtr, Ordering};
+#[allow(unused_imports)]
 use Colors::{Black, Gray, White};
 
 /// Heap implementation

@@ -44,8 +44,8 @@ use crate::sqdbinreader::FileReader;
 use clap::Parser;
 use std::process;
 use vminternals::VMStarter;
-use crate::vminternals::immediates::{Immediates, Serialize};
-use crate::vminternals::VMHeap;
+// use crate::vminternals::immediates::{Immediates, Serialize};
+// use crate::vminternals::VMHeap;
 
 /// Converts strings with postfixes (GB, MB, KB or B) into a value in bytes
 fn string_to_bytesize(string: String) -> Result<usize, &'static str> {
@@ -187,7 +187,7 @@ fn main() {
 
     if let Some(bin) = bin {
         fileread = Some(FileReader::new(bin, args.binver));
-    } else if let Some(sar) = sar {
+    } else if let Some(_sar) = sar {
 
     }
 
