@@ -1,6 +1,6 @@
 [package]
 name = "squid-vm"
-version = "0.6.0-alpha"
+version = "0.7.0-alpha"
 edition = "2021"
 repository = "https://github.com/Fragmenta-Company/SquidVM"
 authors = ["Nicolas Renan Machado Dias", "Fragmenta Company"]
@@ -15,10 +15,10 @@ devkit = []
 strip = "symbols"
 
 [dependencies]
-simple_logger = "4.3.0"
-log = "0.4.20"
-byteorder = "1.5.0"
-arrayvec = { version = "0.7.4", features = [] }
-fnv = { version = "1.0.7", features = [] }
+simple_logger = "4.3"
+log = "0.4"
+byteorder = "1.5"
+arrayvec = { version = "0.7", features = [] }
+fnv = { version = "1", features = [] }
 clap = { version = "4", features = ["derive"] }
 zip = "0.6"
