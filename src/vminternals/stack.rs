@@ -5,6 +5,7 @@ use arrayvec::ArrayVec;
 const STACK_SIZE: usize = 2000;
 
 /// Stack implementation.
+#[cfg(not(feature = "devkit"))]
 pub struct VMStack {
     /// Contains all the values pushed into the stack.
     ///
@@ -18,6 +19,14 @@ pub struct VMStack {
     /// Points to the latest value pushed into the stack.
     ///
     /// Used mostly for monitoring the stack current size.
+    top: usize,
+}
+
+#[cfg(feature = "devkit")]
+#[derive(Debug)]
+pub struct VMStack {
+    stack_memory: ArrayVec<Immediates, STACK_SIZE>,
+    stack_capacity: usize,
     top: usize,
 }
 
