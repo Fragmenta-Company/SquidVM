@@ -19,11 +19,11 @@
 
 /// Changes from SquidVM to SVDK when feature devkit is enabled on compile time.
 #[cfg(feature = "devkit")]
-const VM_NAMING_CONVENTION:&str = "SquidVM Development Kit";
+const VM_NAMING_CONVENTION: &str = "SquidVM Development Kit";
 
 /// Changes from SquidVM to SVDK when feature devkit is enabled on compile time.
 #[cfg(not(feature = "devkit"))]
-const VM_NAMING_CONVENTION:&str = "SquidVM";
+const VM_NAMING_CONVENTION: &str = "SquidVM";
 
 /// Defines the program macros
 #[macro_use]
@@ -69,7 +69,12 @@ fn main() {
 
     if args.version {
         dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
-        println!("{} {} for {}", VM_NAMING_CONVENTION, env!("CARGO_PKG_VERSION"), TARGET);
+        println!(
+            "{} {} for {}",
+            VM_NAMING_CONVENTION,
+            env!("CARGO_PKG_VERSION"),
+            TARGET
+        );
         dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
         process::exit(0);
     }
@@ -97,7 +102,7 @@ fn main() {
     }
 
     if let Some(bin) = bin {
-        fileread = Some(FileReader::new(bin, args.binver));
+        fileread = Some(FileReader::new(bin, args.binver, args.force_newer_bin));
     } else if let Some(_sar) = sar {
     }
 
