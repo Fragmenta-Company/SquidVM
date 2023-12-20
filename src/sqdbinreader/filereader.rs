@@ -42,7 +42,7 @@ impl FileReader {
     /// For example, if the instruction is for adding to the stack,
     /// it will probably contain some data info, like Integers,
     /// Strings, Floats or even Null values.
-    pub fn new(mut file_location: String, filearg: bool) -> FileReader {
+    pub fn new(mut file_location: String, filearg: bool, force_newer_ver: bool) -> FileReader {
         if file_location.ends_with('\\') || file_location.ends_with('/') {
             file_location.pop();
         }
@@ -70,7 +70,18 @@ impl FileReader {
         // println!("{filelength}");
 
         loop {
-            let mut crsr = file.seek(SeekFrom::Start(offset)).unwrap();
+            let crsr = file.seek(SeekFrom::Start(offset)).unwrap();
+
+            #[allow(unused_variables)]
+            fn set_crsr(mut crsr: u64, mut file: &File, offset: &u64) {
+                crsr = match file.seek(SeekFrom::Start(*offset)) {
+                    Ok(crsr) => crsr,
+                    Err(err) => {
+                        eprintln!("\x1B[31m{}\x1b[0m", err);
+                        process::exit(FILE_DATA_ERR);
+                    }
+                }
+            }
 
             let mut buffer = [0u8; 2];
 
@@ -82,7 +93,7 @@ impl FileReader {
                 }
             };
 
-            if filearg {
+            if counter < 1 {
                 fn error_handler<T>(res: Result<T, Error>) -> T {
                     match res {
                         Ok(byte) => byte,
@@ -94,12 +105,13 @@ impl FileReader {
                     }
                 }
 
+                // Check if file has metadata
                 match buffer[0] {
                     // File has metadata
                     1 => {
                         offset += METADATA_IDENTIFIER_BYTE;
 
-                        crsr = file.seek(SeekFrom::Start(offset)).unwrap();
+                        set_crsr(crsr, &file, &offset);
 
                         let major = error_handler(file.read_u32::<LittleEndian>());
 
@@ -107,61 +119,114 @@ impl FileReader {
 
                         let minor = error_handler(file.read_u16::<LittleEndian>());
 
-                        offset += MINOR_PATCH_SIZE;
-
-                        let patch = error_handler(file.read_u16::<LittleEndian>());
-
-                        offset += MINOR_PATCH_SIZE;
-
-                        let details = error_handler(file.read_u8());
-
-                        let mut counter: u32 = 0;
-                        let mut byte_string = vec![0; 6];
-
-                        while counter < COMPILER_NAME_SIZE {
-                            byte_string.push(error_handler(file.read_u8()));
-                            offset += 1;
-                            counter += 1;
-                        }
-
-                        offset += 1;
-
-                        let details = match details {
-                            0 => "Release",
-                            1 => "Alpha",
-                            2 => "Beta",
-                            _ => "Unknown",
-                        };
-
-                        let version = format!(
-                            "Compatible with {}.{}.{}-{} and up until next major",
-                            major, minor, patch, details
-                        );
-
-                        println!("{version}");
-                        println!("\x1B[31mIn alpha and beta versions the VM will change a lot, so most things will change.");
-                        println!("Binaries for SquidVM 0.7.0-alpha and up will not be compatible with old versions\x1b[0m");
-
-                        let compiler = match String::from_utf8(byte_string) {
-                            Ok(string) => string,
-                            Err(err) => {
-                                dev_print!("Error: {:?}", err);
-                                eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
-                                process::exit(METADATA_ERR);
+                        let wrong_ver = if !force_newer_ver {
+                            // Binary major is higher than VM's
+                            if major > VM_MAJOR.parse().unwrap() {
+                                true
+                            } else if minor > VM_MINOR.parse().unwrap()
+                                && major == VM_MAJOR.parse().unwrap()
+                            {
+                                // Binary major is equal to VM's, but minor is higher
+                                true
+                            } else {
+                                // Binary have correct version
+                                false
                             }
+                        } else {
+                            // Force binary to run
+                            false
                         };
 
-                        println!("Compiled with: {compiler}");
+                        if filearg || wrong_ver {
+                            offset += MINOR_PATCH_SIZE;
+
+                            let patch = error_handler(file.read_u16::<LittleEndian>());
+
+                            offset += MINOR_PATCH_SIZE;
+
+                            let details = error_handler(file.read_u8());
+
+                            let mut counter: u32 = 0;
+                            let mut byte_string = vec![0; 6];
+
+                            while counter < COMPILER_NAME_SIZE {
+                                byte_string.push(error_handler(file.read_u8()));
+                                offset += 1;
+                                counter += 1;
+                            }
+
+                            offset += 1;
+
+                            if wrong_ver && !filearg {
+                                let details = match details {
+                                    0 => "release",
+                                    1 => "alpha",
+                                    2 => "beta",
+                                    _ => "unknown",
+                                };
+
+                                eprintln!("\x1B[41mBinary was compiled for a more recent version of the VM!\x1B[0m");
+                                println!(
+                                    "\x1B[32mCurrent VM version: {}\x1B[0m",
+                                    env!("CARGO_PKG_VERSION")
+                                );
+                                let version = format!(
+                                    "{}.{}.{}-{} and up until next major",
+                                    major, minor, patch, details
+                                );
+                                println!(
+                                    "\x1B[33mBinary was compiled for version {}\x1B[0m",
+                                    version
+                                );
+                                process::exit(FILE_DATA_ERR);
+                            }
+
+                            let details = match details {
+                                0 => "Release",
+                                1 => "Alpha",
+                                2 => "Beta",
+                                _ => "Unknown",
+                            };
+
+                            let version = format!(
+                                "Compatible with version {}.{}.{}-{} and up until next major",
+                                major, minor, patch, details
+                            );
+
+                            println!("{version}");
+                            println!("\x1B[31mIn alpha and beta versions the VM will change a lot, so most things will change.");
+                            println!("Binaries for SquidVM 0.7.0-alpha and up will not be compatible with old versions\x1b[0m");
+
+                            let compiler = match String::from_utf8(byte_string) {
+                                Ok(string) => string,
+                                Err(err) => {
+                                    dev_print!("Error: {:?}", err);
+                                    eprintln!("\x1B[31mINVALID FILE METADATA!\x1b[0m");
+                                    process::exit(METADATA_ERR);
+                                }
+                            };
+
+                            println!("Compiled with: {compiler}");
+                        } else {
+                            offset += 27;
+                            set_crsr(crsr, &file, &offset);
+                        }
 
                         file.read_exact(&mut buffer).expect("INVALID FILE DATA!");
                     }
                     // File does not have metadata
                     _ => {
-                        println!("File doesn't include metadata!");
+                        println!("\x1B[44mFile doesn't include metadata!\x1b[0m");
+                        println!("\x1B[41mCompatibility can't be guaranteed.\x1b[0m");
+                        println!(
+                            "\x1B[41mThis may affect the proper functioning of the program.\x1b[0m"
+                        );
                     }
                 }
 
-                process::exit(0);
+                if filearg {
+                    process::exit(0);
+                }
             }
 
             // Jumps the header if the counter is less than one and
@@ -169,7 +234,7 @@ impl FileReader {
             if counter < 1 && buffer[0] == METADATA_IDENTIFIER_BYTE as u8 {
                 offset += HEADER_SIZE;
 
-                crsr = file.seek(SeekFrom::Start(offset)).unwrap();
+                set_crsr(crsr, &file, &offset);
 
                 file.read_exact(&mut buffer).expect("INVALID FILE DATA!");
             }
