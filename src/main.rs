@@ -53,6 +53,9 @@ use vminternals::VMStarter;
 /// File is read and converted to VM readble objects before the interpreter starts.
 fn main() {
     let mut fileread: Option<FileReader> = None;
+    let maxmem;
+    let mut bin: Option<String> = None;
+    let mut sar: Option<String> = None;
 
     let args = Args::parse();
 
@@ -60,8 +63,6 @@ fn main() {
         println!("{} {} for {}", "SquidVM", env!("CARGO_PKG_VERSION"), TARGET);
         process::exit(0);
     }
-
-    let maxmem;
 
     match string_to_bytesize(args.maxmem) {
         Ok(mem) => {
@@ -72,9 +73,6 @@ fn main() {
             process::exit(MAXMEM_CONVERSION_ERR);
         }
     }
-
-    let mut bin: Option<String> = None;
-    let mut sar: Option<String> = None;
 
     // Checks if is there a binary file specificed.
     if let Some(binary) = args.bin {
@@ -94,7 +92,7 @@ fn main() {
     }
 
     let mut vm = VMStarter::new(maxmem, args.repo_size);
-    dev_print!("{:?}", vm);
+    // dev_print!("{:?}", vm);
 
     if let Some(fileread) = fileread {
         while vm.running {
