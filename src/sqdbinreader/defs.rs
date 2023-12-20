@@ -15,3 +15,9 @@ pub const MAJOR_SIZE: u64 = 4;
 
 /// Size of the minor and patch number (u16)
 pub const MINOR_PATCH_SIZE: u64 = 2;
+
+/// Major version of the SquidVM instance.
+pub const VM_MAJOR: &str = env!("CARGO_PKG_VERSION_MAJOR");
+
+/// Minor version of the SquidVM instance.
+pub const VM_MINOR: &str = env!("CARGO_PKG_VERSION_MINOR");
