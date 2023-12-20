@@ -73,9 +73,6 @@ fn main() {
         }
     }
 
-    let mut vm = VMStarter::new(maxmem, args.repo_size);
-    dev_print!("{:?}", vm);
-
     let mut bin: Option<String> = None;
     let mut sar: Option<String> = None;
 
@@ -95,6 +92,9 @@ fn main() {
         fileread = Some(FileReader::new(bin, args.binver));
     } else if let Some(_sar) = sar {
     }
+
+    let mut vm = VMStarter::new(maxmem, args.repo_size);
+    dev_print!("{:?}", vm);
 
     if let Some(fileread) = fileread {
         while vm.running {
