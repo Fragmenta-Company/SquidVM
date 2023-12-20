@@ -1,3 +1,4 @@
+use crate::instructiondefs::*;
 use crate::sqdbinreader::FileReader;
 use crate::vminternals::immediates::Immediates::{
     self, Array, Binary, Boolean, Float, Integer, Null, String as TypeString, UInteger,
@@ -151,11 +152,11 @@ impl VMStarter {
     /// **Panics** if instruction is _unknown_.
     fn instructor(&mut self, instruction: u8) {
         match instruction {
-            0x00 => {
+            HALT => {
                 dev_print!("[ HALT ]");
                 self.running = false;
             }
-            0x01 => {
+            I_ADD => {
                 dev_print!("[ iADD ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
@@ -169,7 +170,7 @@ impl VMStarter {
                     panic!("[ NO INTEGERS ]");
                 }
             }
-            0x02 => {
+            I_SUB => {
                 dev_print!("[ iSUB ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
@@ -181,7 +182,7 @@ impl VMStarter {
                     panic!("[ NO INTEGERS ]");
                 }
             }
-            0x03 => {
+            I_MUL => {
                 dev_print!("[ iMUL ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
@@ -193,7 +194,7 @@ impl VMStarter {
                     panic!("[ NO INTEGERS ]");
                 }
             }
-            0x04 => {
+            I_DVD => {
                 dev_print!("[ iDVD ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
@@ -208,7 +209,7 @@ impl VMStarter {
                     panic!("[ NO INTEGERS ]");
                 }
             }
-            0x05 => {
+            F_I_DVD => {
                 dev_print!("[ FiDVD ]");
                 let v2 = self.stack.pop();
                 let v1 = self.stack.pop();
@@ -219,7 +220,7 @@ impl VMStarter {
                     panic!("[ NO INTEGERS ]");
                 }
             }
-            0x06 => {
+            F_ADD => {
                 dev_print!("[ fADD ]");
 
                 let v2 = self.stack.pop();
@@ -233,7 +234,7 @@ impl VMStarter {
                     panic!("[ NO FLOATS ]");
                 }
             }
-            0x07 => {
+            F_SUB => {
                 dev_print!("[ fSUB ]");
 
                 let v2 = self.stack.pop();
@@ -247,7 +248,7 @@ impl VMStarter {
                     panic!("[ NO FLOATS ]");
                 }
             }
-            0x08 => {
+            F_MUL => {
                 dev_print!("[ fMUL ]");
 
                 let v2 = self.stack.pop();
@@ -261,7 +262,7 @@ impl VMStarter {
                     panic!("[ NO FLOATS ]");
                 }
             }
-            0x09 => {
+            F_DVD => {
                 dev_print!("[ fDVD ]");
 
                 let v2 = self.stack.pop();
@@ -275,19 +276,19 @@ impl VMStarter {
                     panic!("[ NO FLOATS ]");
                 }
             }
-            0x0A => {
+            PDTS => {
                 dev_print!("[ PDTS ]");
 
                 let pdts = &self.data;
 
                 self.stack.push(pdts.clone());
             }
-            0x0B => {
+            PDFS => {
                 dev_print!("[ PDFS ]");
 
                 self.data = self.stack.pop();
             }
-            0x0C => {
+            JMPFD => {
                 dev_print!("[ JMPFD ]");
 
                 if let UInteger(i) = self.data {
@@ -296,7 +297,7 @@ impl VMStarter {
                     panic!("[ WRONG ADDRESS ]");
                 }
             }
-            0x0D => {
+            JMPFS => {
                 dev_print!("[ JMPFS ]");
 
                 if let UInteger(i) = self.stack.pop() {
@@ -305,7 +306,7 @@ impl VMStarter {
                     panic!("[ WRONG ADDRESS ]");
                 }
             }
-            0x0E => {
+            PRTFS => {
                 dev_print!("[ PRTFS ]");
 
                 if let TypeString(s) = self.stack.pop() {
@@ -314,7 +315,7 @@ impl VMStarter {
                     panic!("[ NO STRING ]");
                 }
             }
-            0x0F => {
+            PRTFD => {
                 dev_print!("[ PRTFD ]");
 
                 if let TypeString(s) = self.data.clone() {
@@ -323,7 +324,7 @@ impl VMStarter {
                     panic!("[ NO STRING ]");
                 }
             }
-            0x10 => {
+            I_EXP => {
                 dev_print!("[ iExp ]");
 
                 if let (UInteger(v2), Integer(v1)) = (self.stack.pop(), self.stack.pop()) {
@@ -332,7 +333,7 @@ impl VMStarter {
                     panic!("[ NO INTEGERS ]")
                 }
             }
-            0x11 => {
+            F_EXP => {
                 dev_print!("[ fExp ]");
 
                 if let (Float(v2), Float(v1)) = (self.stack.pop(), self.stack.pop()) {
@@ -341,7 +342,7 @@ impl VMStarter {
                     panic!("[ NO FLOATS ]")
                 }
             }
-            0x12 => {
+            F_I_EXP => {
                 dev_print!("[ fiExp ]");
 
                 if let (Integer(v2), Float(v1)) = (self.stack.pop(), self.stack.pop()) {
@@ -350,17 +351,17 @@ impl VMStarter {
                     panic!("[ NO FLOATS ]")
                 }
             }
-            0x13 => {
+            PRTAFD => {
                 dev_print!("[ PRTAFD ]");
 
                 print_any(self.data.clone());
             }
-            0x14 => {
+            PRTAFS => {
                 dev_print!("[ PRTAFS ]");
 
                 print_any(self.stack.pop());
             }
-            0x15 => {
+            AVP => {
                 dev_print!("[ AVP ]");
 
                 let var_pointer = self.stack.pop();
@@ -377,7 +378,7 @@ impl VMStarter {
                     panic!("[ INVALID VAR NAME ]");
                 }
             }
-            0x16 => {
+            D_VFD => {
                 dev_print!("[ dVFD ]");
 
                 if let UInteger(var_name) = self.data {
@@ -386,7 +387,7 @@ impl VMStarter {
                     panic!("[ WRONG VARIABLE NAME ]");
                 }
             }
-            0x17 => {
+            D_VFS => {
                 dev_print!("[ dVFS ]");
 
                 if let UInteger(var_name) = self.stack.pop() {
