@@ -95,7 +95,7 @@ impl VMHeap {
         dev_print!("Alloc Size: {}", &alloc.size);
         dev_print!("Alloc Type: {:?}", &alloc.immediate_type);
 
-        self.heap_memory.swap_remove(alloc.index);
+        dev_print!("{:?}", self.heap_memory.swap_remove(alloc.index));
 
         drop(alloc);
     }
