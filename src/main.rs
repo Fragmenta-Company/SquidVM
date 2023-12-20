@@ -17,6 +17,14 @@
 //!     todo!(); //in this project.
 #![warn(missing_docs)]
 
+/// Changes from SquidVM to SVDK when feature devkit is enabled on compile time.
+#[cfg(feature = "devkit")]
+const VM_NAMING_CONVENTION:&str = "SquidVM Development Kit";
+
+/// Changes from SquidVM to SVDK when feature devkit is enabled on compile time.
+#[cfg(not(feature = "devkit"))]
+const VM_NAMING_CONVENTION:&str = "SquidVM";
+
 /// Defines the program macros
 #[macro_use]
 mod macrodefs;
@@ -60,7 +68,9 @@ fn main() {
     let args = Args::parse();
 
     if args.version {
-        println!("{} {} for {}", "SquidVM", env!("CARGO_PKG_VERSION"), TARGET);
+        dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
+        println!("{} {} for {}", VM_NAMING_CONVENTION, env!("CARGO_PKG_VERSION"), TARGET);
+        dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
         process::exit(0);
     }
 
