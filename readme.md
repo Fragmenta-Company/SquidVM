@@ -58,13 +58,22 @@ todo!();
 todo!();
 ```
 
-Follow these to know how to use it:
+## How to use?
 
-- Type this into the terminal:
+If you are trying to run your compiled Squid code:
+
+Type this into the terminal:
 ```bash
 squidvm --help
 ```
+If you are a VM developer or trying to debug a bit:
+
+Type this instead:
+```bash
+svdk --help
+```
 - [Access documentation here](https://squidvmdocs.fragmenta.org/)
+to get more info about the internal function of the VM.
 
 ## What is a .sqdbin file?
 
