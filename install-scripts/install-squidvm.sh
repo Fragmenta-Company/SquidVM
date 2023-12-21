@@ -1,7 +1,20 @@
 #!/bin/bash
 
+# shellcheck disable=SC1070
+echo ""
+echo "   _____             _     ___      ____  __  "
+echo "  / ____|           (_)   | \ \    / /  \/  | "
+echo " | (___   __ _ _   _ _  __| |\ \  / /| \  / | "
+echo "  \___ \ / _` | | | | |/ _` | \ \/ / | |\/| | "
+echo "  ____) | (_| | |_| | | (_| |  \  /  | |  | | "
+echo " |_____/ \__, |\__,_|_|\__,_|   \/   |_|  |_| "
+echo "            | |"
+echo "            |_|"
+echo ""
+
 # Set the log file path
 log_file="/tmp/squidvm-install.log"
+uninstall_script="https://github.com/Fragmenta-Company/SquidVM/raw/production/install-scripts/uninstall.sh"
 
 # Function to log messages to the file
 log_message() {
@@ -60,6 +73,13 @@ fi
 chmod +x "$target_directory/$file_name"
 mv "$target_directory/$file_name" "$target_directory/squidvm"
 
+# Download uninstall script
+echo "Download uninstall script..."
+curl -L -s -o "$target_directory/uninstall.sh" "$uninstall_script"
+
+# Make it executable
+chmod +x "$target_directory/uninstall.sh"
+
 # Create a soft link in /usr/bin for SquidVM
 ln -s -f "$target_directory/squidvm" "/usr/bin/squidvm"
 
@@ -74,6 +94,7 @@ if [ "$0" != "$target_directory/update.sh" ]; then
 fi
 
 echo "Installation completed successfully!"
+echo "The install script is located in $target_directory!"
 
 # Display the log file path
 if [ -s "$log_file" ]; then
