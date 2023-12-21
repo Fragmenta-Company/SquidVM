@@ -18,6 +18,7 @@ pub struct VMHeap {
 pub struct VMHeap {
     heap_memory: Vec<RwLock<AllocatedObject>>,
     heap_capacity: usize,
+    heap_free: usize,
 }
 
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
