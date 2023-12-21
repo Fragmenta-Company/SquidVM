@@ -19,11 +19,11 @@
 
 /// Changes from SquidVM to SVDK when feature devkit is enabled on compile time.
 #[cfg(feature = "devkit")]
-const VM_NAMING_CONVENTION:&str = "SquidVM Development Kit";
+const VM_NAMING_CONVENTION: &str = "SquidVM Development Kit";
 
 /// Changes from SquidVM to SVDK when feature devkit is enabled on compile time.
 #[cfg(not(feature = "devkit"))]
-const VM_NAMING_CONVENTION:&str = "SquidVM";
+const VM_NAMING_CONVENTION: &str = "SquidVM";
 
 /// Defines the program macros
 #[macro_use]
@@ -52,14 +52,42 @@ use argsdef::*;
 use clap::Parser;
 use errdef::*;
 use sqdbinreader::FileReader;
-use std::process;
+use std::{process};
+// use std::{process, thread};
+// use std::sync::{Arc, RwLock};
 use targetdef::*;
 use vminternals::VMStarter;
+// use crate::vminternals::immediates::Immediates;
+// use crate::vminternals::VMHeap;
 
 /// Get arguments from the command and creates a VMStarter object.
 /// Run vm.interpreter in loop while vm is running.
 /// File is read and converted to VM readble objects before the interpreter starts.
 fn main() {
+
+    // let heap = Arc::new(RwLock::from(VMHeap::new(1024)));
+    //
+    // let heap_clone1 = Arc::clone(&heap);
+    // let thread1 = thread::spawn(move || {
+    //     let alloc = heap_clone1.write().unwrap().malloc(Immediates::String("idk".parse().unwrap()));
+    //     println!("Thread 1: {:?}", alloc);
+    // });
+    //
+    // println!("1: {:?}", &heap);
+    //
+    // let heap_clone2 = Arc::clone(&heap);
+    // let thread2 = thread::spawn(move || {
+    //     let alloc = heap_clone2.write().unwrap().malloc(Immediates::String("smth".parse().unwrap()));
+    //     println!("Thread 2: {:?}", alloc);
+    // });
+    //
+    // println!("2: {:?}", &heap);
+    //
+    // thread1.join().unwrap();
+    // thread2.join().unwrap();
+    //
+    // println!("3: {:?}", &heap);
+
     let mut fileread: Option<FileReader> = None;
     let maxmem;
     let mut bin: Option<String> = None;
@@ -69,7 +97,12 @@ fn main() {
 
     if args.version {
         dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
-        println!("{} {} for {}", VM_NAMING_CONVENTION, env!("CARGO_PKG_VERSION"), TARGET);
+        println!(
+            "{} {} for {}",
+            VM_NAMING_CONVENTION,
+            env!("CARGO_PKG_VERSION"),
+            TARGET
+        );
         dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
         process::exit(0);
     }
@@ -97,7 +130,7 @@ fn main() {
     }
 
     if let Some(bin) = bin {
-        fileread = Some(FileReader::new(bin, args.binver));
+        fileread = Some(FileReader::new(bin, args.binver, args.force_newer_bin));
     } else if let Some(_sar) = sar {
     }
 

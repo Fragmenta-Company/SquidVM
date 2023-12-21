@@ -30,6 +30,10 @@ pub struct Args {
     )]
     pub binver: bool,
 
+    /// Force binaries compiled for newer versions to be run.
+    #[arg(long, requires = "bin", requires = "sar")]
+    pub force_newer_bin: bool,
+
     /// Shows the SquidVM version | SquidVM |major|.|minor|.|patch|-|details| for |OS| |arch|
     #[arg(long, short = 'V')]
     pub version: bool,

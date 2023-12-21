@@ -1,20 +1,22 @@
 use crate::vminternals::immediates::*;
-use std::mem;
-use std::sync::atomic::{AtomicPtr, Ordering};
+use std::{mem, process};
+use std::sync::RwLock;
 #[allow(unused_imports)]
 use Colors::{Black, Gray, White};
+use crate::errdef::HEAP_ALLOC_ERR;
 
 /// Heap implementation
 #[cfg(feature = "devkit")]
 #[derive(Debug)]
 pub struct VMHeap {
-    heap_memory: Vec<AtomicPtr<AllocatedObject>>,
+    heap_memory: Vec<RwLock<AllocatedObject>>,
     heap_capacity: usize,
+    heap_free: usize,
 }
 
 #[cfg(not(feature = "devkit"))]
 pub struct VMHeap {
-    heap_memory: Vec<AtomicPtr<AllocatedObject>>,
+    heap_memory: Vec<RwLock<AllocatedObject>>,
     heap_capacity: usize,
 }
 
@@ -51,8 +53,9 @@ pub struct AllocatedObject {
 impl VMHeap {
     pub fn new(heap_capacity: usize) -> Self {
         VMHeap {
-            heap_memory: Vec::with_capacity(heap_capacity),
+            heap_memory: Vec::new(),
             heap_capacity,
+            heap_free: heap_capacity,
         }
     }
 
@@ -62,14 +65,12 @@ impl VMHeap {
         println!("Size: {}", mem::size_of_val(&serialized));
         println!("Content {:?}", &serialized.len());
 
-        let object = Box::new(AllocatedObject {
+        let object = AllocatedObject {
             data: serialized,
             marked: White,
-        });
+        };
 
-        let pointer = Box::into_raw(object);
-
-        let size = mem::size_of_val(unsafe { &*pointer });
+        let size = mem::size_of_val(&object);
 
         let malloc = Allocation {
             index: self.heap_memory.len(),
@@ -77,7 +78,16 @@ impl VMHeap {
             immediate_type: data.to_immediate_type(),
         };
 
-        self.heap_memory.push(AtomicPtr::new(pointer));
+        if self.heap_free > size {
+
+            self.heap_free -= size;
+
+        } else {
+            eprintln!("\x1B[41m[ HEAP OVERFLOW ]\x1b[0m");
+            process::exit(HEAP_ALLOC_ERR);
+        }
+
+        self.heap_memory.push(RwLock::from(object));
 
         dev_print!("{:?}", self.heap_memory);
 
@@ -87,7 +97,7 @@ impl VMHeap {
     pub fn get_obj(&mut self, address: usize) -> AllocatedObject {
         // let obj = self.heap_memory[address].as_ptr();
 
-        unsafe { self.heap_memory[address].load(Ordering::Relaxed).read() }
+        self.heap_memory[address].read().unwrap().clone()
     }
 
     pub fn free(&mut self, alloc: Allocation) {
@@ -95,8 +105,15 @@ impl VMHeap {
         dev_print!("Alloc Size: {}", &alloc.size);
         dev_print!("Alloc Type: {:?}", &alloc.immediate_type);
 
+        self.heap_free += alloc.size;
+
         dev_print!("{:?}", self.heap_memory.swap_remove(alloc.index));
 
-        drop(alloc);
+        // drop(alloc);
+    }
+
+    pub fn mark_roots() {
+
+
     }
 }
