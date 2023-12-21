@@ -48,5 +48,5 @@ if [[ "$choice" == "Y" || "$choice" == "y" ]]; then
     echo "Uninstallation completed successfully!"
 
 else
-    echo "Uninstallation aborted."
+    echo "Uninstallation canceled!"
 fi

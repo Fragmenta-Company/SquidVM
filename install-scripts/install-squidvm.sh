@@ -18,7 +18,7 @@ read -r -p "Do you want to install the SquidVM Runtime (SVRT)? (Y/n): " choice
 if [[ "$choice" == "Y" || "$choice" == "y" ]]; then
 
 # Set the log file path
-log_file="/tmp/squidvm-install.log"
+log_file="./squidvm-install.log"
 uninstall_script="https://github.com/Fragmenta-Company/SquidVM/raw/production/install-scripts/uninstall.sh"
 
 # Function to log messages to the file

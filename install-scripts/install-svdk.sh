@@ -16,7 +16,7 @@ read -r -p "Do you want to install the SquidVM Development Kit (SVDK)? (Y/n): " 
 if [[ "$choice" == "Y" || "$choice" == "y" ]]; then
 
 # Set the log file path
-log_file="/tmp/svdk-install.log"
+log_file="./svdk-install.log"
 uninstall_script="https://github.com/Fragmenta-Company/SquidVM/raw/production/install-scripts/uninstall.sh"
 
 # Function to log messages to the file
