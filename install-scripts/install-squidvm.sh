@@ -5,7 +5,7 @@ echo ""
 echo "   _____             _     ___      ____  __  "
 echo "  / ____|           (_)   | \ \    / /  \/  | "
 echo " | (___   __ _ _   _ _  __| |\ \  / /| \  / | "
-echo "  \___ \ / _` | | | | |/ _` | \ \/ / | |\/| | "
+echo "  \___ \ / _\` | | | | |/ _\` | \ \/ / | |\/| | "
 echo "  ____) | (_| | |_| | | (_| |  \  /  | |  | | "
 echo " |_____/ \__, |\__,_|_|\__,_|   \/   |_|  |_| "
 echo "            | |"
@@ -94,7 +94,7 @@ if [ "$0" != "$target_directory/update.sh" ]; then
 fi
 
 echo "Installation completed successfully!"
-echo "The install script is located in $target_directory!"
+echo "The uninstall script is located in $target_directory!"
 
 # Display the log file path
 if [ -s "$log_file" ]; then
