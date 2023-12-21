@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# shellcheck disable=SC1070
 echo ""
 echo "   _____             _     ___      ____  __  "
 echo "  / ____|           (_)   | \ \    / /  \/  | "
