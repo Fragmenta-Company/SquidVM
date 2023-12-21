@@ -9,13 +9,61 @@
 
 # **What is SquidVM?**
 
+```text
+  _____             _     ___      ____  __ 
+ / ____|           (_)   | \ \    / /  \/  |
+| (___   __ _ _   _ _  __| |\ \  / /| \  / |
+ \___ \ / _` | | | | |/ _` | \ \/ / | |\/| |
+ ____) | (_| | |_| | | (_| |  \  /  | |  | |
+|_____/ \__, |\__,_|_|\__,_|   \/   |_|  |_|
+           | |                              
+           |_|                              
+```
+
 SquidVM is a Stack-based VM (just like _Java's JVM_).
 It's made from the ground up using Rust for its implementation.
 
 The VM will contain a programming language with the name Squid.
 
+## How to install it?
+
+### Linux
+
+Download the installation script for:
+- [SquidVM Runtime (SVRT)](https://github.com/Fragmenta-Company/SquidVM/raw/production/install-scripts/install-squidvm.sh)
+- [SquidVM Development Kit (SVDK)](https://github.com/Fragmenta-Company/SquidVM/raw/production/install-scripts/install-svdk.sh)
+
+After that, you will need to make the script executable:
+
+```bash
+chmod +x ./install-svdk.sh
+```
+
+Then run it normally:
+```bash
+sudo ./install-svdk.sh
+```
+
+### Done!
+
+### Windows
+
+```rust
+todo!();
+```
+
+### MacOS
+
+```rust
+todo!();
+```
+
 Follow these to know how to use it:
-- Type `./squid-vm(.exe) --help` 
+
+- Type this into the terminal:
+```bash
+squidvm --help
+```
 - [Access documentation here](https://squidvmdocs.fragmenta.org/)
 
 ## What is a .sqdbin file?
