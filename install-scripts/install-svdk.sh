@@ -1,15 +1,19 @@
 #!/bin/bash
 
 echo ""
-echo "   _____             _     ___      ____  __  "
-echo "  / ____|           (_)   | \ \    / /  \/  | "
-echo " | (___   __ _ _   _ _  __| |\ \  / /| \  / | "
-echo "  \___ \ / _\` | | | | |/ _\` | \ \/ / | |\/| | "
-echo "  ____) | (_| | |_| | | (_| |  \  /  | |  | | "
-echo " |_____/ \__, |\__,_|_|\__,_|   \/   |_|  |_| "
-echo "            | |"
-echo "            |_|"
+echo "   _______      _______  _  __  "
+echo "  / ____\ \    / /  __ \| |/ /  "
+echo " | (___  \ \  / /| |  | | ' /   "
+echo "  \___ \  \ \/ / | |  | |  <    "
+echo "  ____) |  \  /  | |__| | . \   "
+echo " |_____/    \/   |_____/|_|\_\  "
 echo ""
+
+# Get user input
+read -r -p "Do you want to install the SquidVM Development Kit (SVDK)? (Y/n): " choice
+
+# Check the user's choice
+if [[ "$choice" == "Y" || "$choice" == "y" ]]; then
 
 # Set the log file path
 log_file="/tmp/svdk-install.log"
@@ -125,4 +129,8 @@ echo "The uninstall script is located in $target_directory!"
 # Display the log file path
 if [ -s "$log_file" ]; then
     echo "Check the log file for details: $log_file"
+fi
+
+else
+  echo "Installation canceled!"
 fi
