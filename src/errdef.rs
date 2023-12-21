@@ -7,3 +7,5 @@ pub const MAXMEM_CONVERSION_ERR: i32 = 4;
 pub const METADATA_ERR: i32 = 5;
 
 pub const FILE_DATA_ERR: i32 = 6;
+
+pub const HEAP_ALLOC_ERR: i32 = 2;
