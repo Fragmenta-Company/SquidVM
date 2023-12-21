@@ -14,6 +14,7 @@ echo ""
 
 # Set the log file path
 log_file="/tmp/svdk-install.log"
+uninstall_script="https://github.com/Fragmenta-Company/SquidVM/raw/production/install-scripts/uninstall.sh"
 
 # Function to log messages to the file
 log_message() {
