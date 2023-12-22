@@ -124,7 +124,7 @@ impl FileReader {
                             if major > VM_MAJOR.parse().unwrap() {
                                 true
                             } else if minor > VM_MINOR.parse().unwrap()
-                                && major == VM_MAJOR.parse().unwrap()
+                                && major == VM_MAJOR.parse::<u32>().unwrap()
                             {
                                 // Binary major is equal to VM's, but minor is higher
                                 true

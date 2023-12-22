@@ -19,6 +19,8 @@ pub enum Immediates {
     Binary(Vec<u8>),
     /// Array of Immediates type
     Array(Vec<Immediates>),
+    /// Pointer/reference to a address or object in the heap
+    RefPtr(usize)
 }
 
 /// ## ImmediatesType are the objects types NOT containing the value inside them, just the type.
@@ -40,6 +42,8 @@ pub enum ImmediatesType {
     Binary,
     /// Array of Immediates type
     Array,
+    /// Reference/Pointer type
+    RefPtr
 }
 
 /// ## Creates a function to serialize Immediates to sequences of bytes
@@ -67,6 +71,7 @@ impl ImmediateType for Immediates {
             Immediates::String(_) => ImmediatesType::String,
             Immediates::Binary(_) => ImmediatesType::Binary,
             Immediates::Array(_) => ImmediatesType::Array,
+            Immediates::RefPtr(_) => ImmediatesType::RefPtr
         }
     }
 }
@@ -105,6 +110,11 @@ impl Serialize for Immediates {
             Immediates::Array(_) => {
                 panic!("Array not permited for instance");
             }
+            Immediates::RefPtr(u) => {
+                let mut bytes = vec![0u8; mem::size_of::<Immediates>()];
+                bytes.copy_from_slice(&u.to_le_bytes());
+                bytes
+            }
         }
     }
 
@@ -131,6 +141,11 @@ impl Serialize for Immediates {
             Immediates::Binary(bin) => bin.clone(),
             Immediates::Array(_) => {
                 panic!("Array not permitted for instance");
+            }
+            Immediates::RefPtr(u) => {
+                let mut bytes = vec![0u8; mem::size_of::<usize>()];
+                bytes.copy_from_slice(&u.to_le_bytes());
+                bytes
             }
         }
     }
