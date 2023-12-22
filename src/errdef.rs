@@ -9,3 +9,5 @@ pub const METADATA_ERR: i32 = 5;
 pub const FILE_DATA_ERR: i32 = 6;
 
 pub const HEAP_ALLOC_ERR: i32 = 2;
+
+pub const UPDATE_CHECK_ERR: i32 = 7;
