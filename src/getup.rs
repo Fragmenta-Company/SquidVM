@@ -1,6 +1,8 @@
 use crate::errdef::UPDATE_CHECK_ERR;
 use std::process;
 
+/// Gets update and returns Vector containing all strings necessary for displaying
+/// new versions, return all necessary information.
 pub fn get_update() -> Vec<String> {
     let mut mainvec = Vec::new();
     let response =

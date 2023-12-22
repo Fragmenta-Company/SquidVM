@@ -43,6 +43,7 @@ mod errdef;
 /// Module used for reading the Squid ARchives
 mod sarreader;
 
+/// Module used for getting updates from the GitHub repo.
 mod getup;
 /// Defines all the instructions.
 mod instructiondefs;
@@ -60,6 +61,33 @@ use targetdef::*;
 use vminternals::VMStarter;
 // use crate::vminternals::immediates::Immediates;
 // use crate::vminternals::VMHeap;
+
+/// Contains tools for checking updates, getting current version and others.
+fn version_args(args: &Args) {
+
+    if args.check_updates {
+        println!("Current version: {}", env!("CARGO_PKG_VERSION"));
+
+        getup::get_update().iter().rev().for_each(move |string| {
+            println!("{string}");
+        });
+
+        process::exit(0);
+    }
+
+    if args.version {
+        dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
+        println!(
+            "{} {} for {}",
+            VM_NAMING_CONVENTION,
+            env!("CARGO_PKG_VERSION"),
+            TARGET
+        );
+        dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
+        process::exit(0);
+    }
+
+}
 
 /// Get arguments from the command and creates a VMStarter object.
 /// Run vm.interpreter in loop while vm is running.
@@ -95,27 +123,7 @@ fn main() {
 
     let args = Args::parse();
 
-    if args.check_updates {
-        println!("Current version: {}", env!("CARGO_PKG_VERSION"));
-
-        getup::get_update().iter().rev().for_each(move |string| {
-            println!("{string}");
-        });
-
-        process::exit(0);
-    }
-
-    if args.version {
-        dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
-        println!(
-            "{} {} for {}",
-            VM_NAMING_CONVENTION,
-            env!("CARGO_PKG_VERSION"),
-            TARGET
-        );
-        dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
-        process::exit(0);
-    }
+    version_args(&args);
 
     match string_to_bytesize(args.maxmem) {
         Ok(mem) => {
