@@ -1,9 +1,9 @@
+use crate::errdef::HEAP_ALLOC_ERR;
 use crate::vminternals::immediates::*;
-use std::{mem, process};
 use std::sync::RwLock;
+use std::{mem, process};
 #[allow(unused_imports)]
 use Colors::{Black, Gray, White};
-use crate::errdef::HEAP_ALLOC_ERR;
 
 /// Heap implementation
 #[cfg(feature = "devkit")]
@@ -80,9 +80,7 @@ impl VMHeap {
         };
 
         if self.heap_free > size {
-
             self.heap_free -= size;
-
         } else {
             eprintln!("\x1B[41m[ HEAP OVERFLOW ]\x1b[0m");
             process::exit(HEAP_ALLOC_ERR);
@@ -110,11 +108,8 @@ impl VMHeap {
 
         dev_print!("{:?}", self.heap_memory.swap_remove(alloc.index));
 
-        // drop(alloc);
+        drop(alloc);
     }
 
-    pub fn mark_roots() {
-
-
-    }
+    pub fn mark_roots() {}
 }
