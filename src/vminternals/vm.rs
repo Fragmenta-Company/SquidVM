@@ -1,7 +1,7 @@
 use crate::instructiondefs::*;
 use crate::sqdbinreader::FileReader;
 use crate::vminternals::immediates::Immediates::{
-    self, Array, Binary, Boolean, Float, Integer, Null, String as TypeString, UInteger,
+    self, Array, Binary, Boolean, Float, Integer, Null, String as TypeString, UInteger, RefPtr
 };
 use crate::vminternals::{VMHeap, VMRepository, VMStack};
 
@@ -30,6 +30,9 @@ fn print_any(printable: Immediates) {
         }
         Array(arr) => {
             print!("{:?}", arr)
+        }
+        RefPtr(u) => {
+            print!("{u:x}");
         }
     }
 }
