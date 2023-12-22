@@ -48,6 +48,15 @@ sudo ./install-svdk.sh
 
 ### Windows
 
+Download the setup from the latest releases for:
+- [SquidVM Runtime (SVRT)](https://github.com/Fragmenta-Company/SquidVM/releases/latest/download/SVDK.Setup.exe)
+- [SquidVM Development Kit (SVDK)](https://github.com/Fragmenta-Company/SquidVM/releases/latest/download/SquidVM.Setup.exe)
+
+Open the file after the download and install it.
+### Done!
+The installer tries to add SquidVM to PATH, so try using SquidVM
+in the terminal, and tell me if it works on your machine!
+
 ```rust
 todo!();
 ```
