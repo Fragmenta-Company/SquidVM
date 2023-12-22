@@ -23,5 +23,5 @@ arrayvec = { version = "0.7", features = [] }
 fnv = { version = "1", features = [] }
 clap = { version = "4", features = ["derive"] }
 zip = "0.6"
-minreq = { version = "2.11.0", features = ["json-using-serde", "https-native"] }
+minreq = { version = "2.11.0", features = ["json-using-serde", "https"] }
 serde_json = "1.0.108"
