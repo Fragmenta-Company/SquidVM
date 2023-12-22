@@ -37,6 +37,10 @@ pub struct Args {
     /// Shows the SquidVM version | SquidVM |major|.|minor|.|patch|-|details| for |OS| |arch|
     #[arg(long, short = 'V')]
     pub version: bool,
+
+    /// Shows newer versions if detected
+    #[arg(long, visible_alias = "cnv")]
+    pub check_updates: bool,
 }
 
 /// Converts strings with postfixes (GB, MB, KB or B) into a value in bytes
