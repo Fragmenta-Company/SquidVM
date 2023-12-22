@@ -43,6 +43,7 @@ mod errdef;
 /// Module used for reading the Squid ARchives
 mod sarreader;
 
+mod getup;
 /// Defines all the instructions.
 mod instructiondefs;
 /// Defines the target that show when using `./squid-vm(.exe) --version`
@@ -52,7 +53,7 @@ use argsdef::*;
 use clap::Parser;
 use errdef::*;
 use sqdbinreader::FileReader;
-use std::{process};
+use std::process;
 // use std::{process, thread};
 // use std::sync::{Arc, RwLock};
 use targetdef::*;
@@ -64,7 +65,6 @@ use vminternals::VMStarter;
 /// Run vm.interpreter in loop while vm is running.
 /// File is read and converted to VM readble objects before the interpreter starts.
 fn main() {
-
     // let heap = Arc::new(RwLock::from(VMHeap::new(1024)));
     //
     // let heap_clone1 = Arc::clone(&heap);
@@ -94,6 +94,16 @@ fn main() {
     let mut sar: Option<String> = None;
 
     let args = Args::parse();
+
+    if args.check_updates {
+        println!("Current version: {}", env!("CARGO_PKG_VERSION"));
+
+        getup::get_update().iter().rev().for_each(move |string| {
+            println!("{string}");
+        });
+
+        process::exit(0);
+    }
 
     if args.version {
         dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
