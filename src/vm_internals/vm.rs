@@ -9,9 +9,13 @@ use async_std::task;
 use async_std::task::JoinHandle;
 use std::process;
 use std::sync::{Arc, RwLock};
-use winit::event::{Event, WindowEvent};
-use winit::event_loop::EventLoop;
-use winit::window::WindowBuilder;
+use std::time::Duration;
+use rand::Rng;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use sdl2::pixels::Color;
+use sdl2::rect::{Point, Rect};
+
 
 /// Handles errors while pop from the stack
 fn handle_stack_err(result: Result<Immediates, String>) -> Immediates {
@@ -69,48 +73,68 @@ pub fn print_any(printable: Immediates) {
 }
 
 /// Open new window ***WIP***
-pub async fn open_window() {
-    // Create an event loop
-    let event_loop = EventLoop::new().unwrap();
+pub async fn open_window() -> Result<(), String> {
 
-    // Create a window builder
-    let window_builder = WindowBuilder::new()
-        .with_title("SquidVM Window Test") // Set the window title
-        .with_inner_size(winit::dpi::LogicalSize::new(800, 600)); // Set the window size
+    let sdl_ctx = sdl2::init().unwrap();
 
-    // Build the window
-    let window = window_builder.build(&event_loop).unwrap();
+    let video_sub = sdl_ctx.video()?;
 
-    // Run the event loop
-    event_loop
-        .run(move |event, elwt| match event {
-            Event::NewEvents(_) => {}
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                ..
-            } => {
-                dev_print!("The close button was pressed; stopping");
-                elwt.exit();
+    let mut window = video_sub.window("Random line drawer", 800, 600)
+        .position_centered().vulkan().resizable().build().map_err(|e| e.to_string())?;
+
+    let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
+
+    let mut event_pump = sdl_ctx.event_pump()?;
+
+    loop {
+
+        let mut rng = rand::thread_rng();
+
+        let first:i32 = rng.gen_range(0..=2000);
+        let second:i32 = rng.gen_range(0..=2000);
+        let third:i32 = rng.gen_range(0..=2000);
+        let forth:i32 = rng.gen_range(0..=2000);
+
+        for event in event_pump.poll_iter() {
+            match event {
+                // Quit the program if the window is closed or the escape key is pressed
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => return Ok(()),
+                _ => {}
             }
-            Event::WindowEvent {
-                event: WindowEvent::RedrawRequested,
-                ..
-            } => {
-                let innersize = window.inner_size();
-                let height = innersize.height;
-                let width = innersize.width;
-                dev_print!("h: {}, w: {}", height, width);
-            }
-            Event::DeviceEvent { .. } => {}
-            Event::UserEvent(_) => {}
-            Event::Suspended => {}
-            Event::Resumed => {}
-            Event::AboutToWait => {}
-            Event::LoopExiting => {}
-            Event::MemoryWarning => {}
-            _ => {}
-        })
-        .expect("TODO: panic message");
+        }
+
+        // Clear the canvas with black color
+        canvas.set_draw_color(Color::RGB(255, 255, 255));
+        canvas.clear();
+
+        // Set the draw color to red
+        canvas.set_draw_color(Color::RGB(255, 0, 0));
+
+        // Draw something on the canvas here...
+        canvas.draw_line(Point::new(first ,second), Point::new(third, forth))?;
+        canvas.set_draw_color(Color::RGB(0, 0, 255));
+        canvas.draw_line(Point::new(forth ,first), Point::new(second, third))?;
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.draw_line(Point::new(third ,first), Point::new(first, forth))?;
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.draw_line(Point::new(third ,forth), Point::new(second, forth))?;
+
+        canvas.draw_rect(Rect::new(forth, forth, third as u32, first as u32))?;
+        canvas.draw_rect(Rect::new(first, forth, first as u32, second as u32))?;
+        canvas.draw_rect(Rect::new(third, forth, third as u32, forth as u32))?;
+        canvas.draw_rect(Rect::new(first, forth, third as u32, second as u32))?;
+
+        // Present the canvas on the window
+        canvas.present();
+
+        // Sleep for 1/60th of a second to limit the frame rate
+        std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+    }
+
 }
 
 /// Put #[derive(Debug)] into struct if devkit feature is enabled
