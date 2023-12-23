@@ -30,10 +30,10 @@ const VM_NAMING_CONVENTION: &str = "SquidVM";
 mod macrodefs;
 
 /// Contains the sqdbin binary files reader implementation
-mod sqdbinreader;
+mod sqdbin_reader;
 
 /// Contains the entirety of the VM internal implementation
-mod vminternals;
+mod vm_internals;
 
 /// Used for cli arguments definintion
 mod argsdef;
@@ -41,7 +41,7 @@ mod argsdef;
 /// Defines the exit codes/error codes that the program will throw.
 mod errdef;
 /// Module used for reading the Squid ARchives
-mod sarreader;
+mod sar_reader;
 
 /// Module used for getting updates from the GitHub repo.
 mod getup;
@@ -51,20 +51,16 @@ mod instructiondefs;
 mod targetdef;
 
 use argsdef::*;
+use async_std::task;
 use clap::Parser;
 use errdef::*;
-use sqdbinreader::FileReader;
+use sqdbin_reader::FileReader;
 use std::process;
-// use std::{process, thread};
-// use std::sync::{Arc, RwLock};
 use targetdef::*;
-use vminternals::VMStarter;
-// use crate::vminternals::immediates::Immediates;
-// use crate::vminternals::VMHeap;
+use vm_internals::VMStarter;
 
 /// Contains tools for checking updates, getting current version and others.
 fn version_args(args: &Args) {
-
     if args.check_updates {
         println!("Current version: {}", env!("CARGO_PKG_VERSION"));
 
@@ -86,7 +82,6 @@ fn version_args(args: &Args) {
         dev_print!("---- SVDK ---- ---- SVDK ---- SVDK ---- ---- SVDK ----");
         process::exit(0);
     }
-
 }
 
 /// Get arguments from the command and creates a VMStarter object.
@@ -159,6 +154,19 @@ fn main() {
         while vm.running {
             vm.interpreter(fileread.clone());
         }
+    }
+
+    if vm.handlers.len() > 0 {
+        task::block_on(async {
+            for task in vm.handlers {
+                match task.await {
+                    Ok(_) => {}
+                    Err(err) => {
+                        eprintln!("Handler error: \x1B[41m{}\x1B[0m", err);
+                    }
+                };
+            }
+        });
     }
 
     dev_print!("Exiting...");
