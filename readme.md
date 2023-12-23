@@ -58,10 +58,6 @@ Open the file after the download and install it.
 The installer tries to add SquidVM to PATH, so try using SquidVM
 in the terminal, and tell me if it works on your machine!
 
-```rust
-todo!();
-```
-
 ### MacOS
 
 ```rust
@@ -102,10 +98,13 @@ I'll probably make a simple wiki for that in some time! _Just wait for it._
 The command requires tags now!
 
 For binary files:
-`./squid-vm(.exe) -b testbinary`
-
+```shell
+foo@bar:~$ squid-vm -b testbinary
+```
 For SARs:
-`./squid-vm(.exe) -s sarfile`
+```shell
+foo@bar:~$ squid-vm -s sarfile
+```
 
 Both don't need the extension to be typed.
 But it's still there.
@@ -113,7 +112,9 @@ But it's still there.
 ### For [versions between 0.4.0 (pre-alpha) and 0.5.2-alpha](https://github.com/Fragmenta-Company/SquidVM/compare/V0.4.0...V0.6.0-alpha):
 
 Run it like this
-`./squid-vm testbinary.sqdbin`
+```shell
+foo@bar:~$ ./squid-vm(.exe) testbinary.sqdbin
+```
 
 Here ya go!
 
@@ -136,12 +137,18 @@ The above warning will be removed when SARs are made available!
 ### Spark is the benchmarking and profiling tool for the SquidVM.
 #### It can be called like that:
 
-* `./squidvm spark bench ./binary.sqdbin`
-
-* `./squidvm spark profile ./binary.sqdbin`
+```shell
+foo@bar:~$ squidvm --spark bench -b ./binary.sqdbin
+```
+and
+```shell
+foo@bar:~$ squidvm --spark profile -b ./binary.sqdbin
+```
 
 **IT'S NOT IMPLEMENTED YET!**
 
 The above warning will be removed when Spark is ready!
 
-`todo!();`
+```rust
+todo!();
+```

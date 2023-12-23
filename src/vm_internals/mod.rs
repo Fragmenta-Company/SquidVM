@@ -1,3 +1,7 @@
+/// ## VM, interpreter and instruction implementation
+#[macro_use]
+pub mod vm;
+
 /// ## VM's heap and garbage collector implementation
 pub mod heap;
 
@@ -11,8 +15,8 @@ pub mod repository;
 /// ## VM's stack implementation
 pub mod stack;
 
-/// ## VM, interpreter and instruction implementation
-pub mod vm;
+/// ## Threads implementation
+pub mod vm_threads;
 
 pub use repository::*;
 

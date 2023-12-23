@@ -1,34 +1,27 @@
-use crate::vminternals::immediates::Immediates;
+use crate::vm_internals::immediates::Immediates;
 use arrayvec::ArrayVec;
 
 /// Fixed value of the stack size.
 const STACK_SIZE: usize = 2000;
 
-/// Stack implementation.
-#[cfg(not(feature = "devkit"))]
-pub struct VMStack {
-    /// Contains all the values pushed into the stack.
-    ///
-    /// It's an ArrayVec so all the data is contained in the stack.
-    /// Being that it has the speed of a real stack.
-    stack_memory: ArrayVec<Immediates, STACK_SIZE>,
+debug_derive!(
+    /// Stack implementation.
+    pub struct VMStack {
+        /// Contains all the values pushed into the stack.
+        ///
+        /// It's an ArrayVec so all the data is contained in the stack.
+        /// Being that it has the speed of a real stack.
+        stack_memory: ArrayVec<Immediates, STACK_SIZE>,
 
-    /// The stack capacity.
-    stack_capacity: usize,
+        /// The stack capacity.
+        stack_capacity: usize,
 
-    /// Points to the latest value pushed into the stack.
-    ///
-    /// Used mostly for monitoring the stack current size.
-    top: usize,
-}
-
-#[cfg(feature = "devkit")]
-#[derive(Debug)]
-pub struct VMStack {
-    stack_memory: ArrayVec<Immediates, STACK_SIZE>,
-    stack_capacity: usize,
-    top: usize,
-}
+        /// Points to the latest value pushed into the stack.
+        ///
+        /// Used mostly for monitoring the stack current size.
+        top: usize,
+    }
+);
 
 impl VMStack {
     /// Instantiates the VMStack object and returns it.
@@ -46,13 +39,13 @@ impl VMStack {
     }
 
     /// Used for popping a value from the stack and returning it.
-    pub fn pop(&mut self) -> Immediates {
+    pub fn pop(&mut self) -> Result<Immediates, String> {
         if self.top == 0 {
-            panic!("[ STACK UNDERFLOW ]");
+            return Err("[ STACK UNDERFLOW ]".to_string());
         }
 
         self.top -= 1;
-        self.stack_memory.pop().expect("Stack should not be empty")
+        Ok(self.stack_memory.pop().expect("Stack should not be empty"))
     }
 
     /// Used to check if the stack is empty at the moment.
@@ -61,17 +54,18 @@ impl VMStack {
     }
 
     /// Used for pushing values into the stack.
-    pub fn push(&mut self, data: Immediates) {
+    pub fn push(&mut self, data: Immediates) -> Result<(), String> {
         if self.top == self.stack_capacity {
-            panic!(
+            return Err(format!(
                 "[ STACK OVERFLOW ] Stack Capacity: {}, Stack Size: {}",
                 self.stack_capacity, self.top
-            )
+            ));
         }
 
         self.stack_memory.push(data);
         self.top += 1;
 
+        Ok(())
         // println!("{:?}", self.stack_memory);
     }
 }

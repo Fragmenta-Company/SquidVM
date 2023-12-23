@@ -1,7 +1,7 @@
 use crate::errdef::*;
 use crate::instructiondefs::*;
-use crate::sqdbinreader::defs::*;
-use crate::vminternals::immediates::Immediates::{
+use crate::sqdbin_reader::defs::*;
+use crate::vm_internals::immediates::Immediates::{
     self, Boolean, Float, Integer, Null, String as TypeString, UInteger,
 };
 use byteorder::{LittleEndian, ReadBytesExt};
