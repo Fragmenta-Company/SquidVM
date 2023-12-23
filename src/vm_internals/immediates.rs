@@ -20,7 +20,7 @@ pub enum Immediates {
     /// Array of Immediates type
     Array(Vec<Immediates>),
     /// Pointer/reference to a address or object in the heap
-    RefPtr(usize)
+    RefPtr(usize),
 }
 
 /// ## ImmediatesType are the objects types NOT containing the value inside them, just the type.
@@ -43,7 +43,7 @@ pub enum ImmediatesType {
     /// Array of Immediates type
     Array,
     /// Reference/Pointer type
-    RefPtr
+    RefPtr,
 }
 
 /// ## Creates a function to serialize Immediates to sequences of bytes
@@ -71,7 +71,7 @@ impl ImmediateType for Immediates {
             Immediates::String(_) => ImmediatesType::String,
             Immediates::Binary(_) => ImmediatesType::Binary,
             Immediates::Array(_) => ImmediatesType::Array,
-            Immediates::RefPtr(_) => ImmediatesType::RefPtr
+            Immediates::RefPtr(_) => ImmediatesType::RefPtr,
         }
     }
 }
