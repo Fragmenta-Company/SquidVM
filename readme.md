@@ -36,13 +36,13 @@ Download the installation script for:
 
 After that, you will need to make the script executable:
 
-```bash
-$ chmod +x ./install-svdk.sh
+```shell
+foo@bar:~$ chmod +x ./install-svdk.sh
 ```
 
 Then run it normally:
-```bash
-$ sudo ./install-svdk.sh
+```shell
+foo@bar:~$ sudo ./install-svdk.sh
 ```
 
 ### Done!
@@ -73,14 +73,14 @@ todo!();
 If you are trying to run your compiled Squid code:
 
 Type this into the terminal:
-```bash
-$ squidvm --help
+```shell
+foo@bar:~$ squidvm --help
 ```
 If you are a VM developer or trying to debug a bit:
 
 Type this instead:
-```bash
-$ svdk --help
+```shell
+foo@bar:~$ svdk --help
 ```
 - [Access documentation here](https://squidvmdocs.fragmenta.org/)
 to get more info about the internal function of the VM.
