@@ -1,6 +1,5 @@
 use crate::errdef::HEAP_ALLOC_ERR;
-use crate::vminternals::immediates::*;
-use std::sync::RwLock;
+use crate::vm_internals::immediates::*;
 use std::{mem, process};
 #[allow(unused_imports)]
 use Colors::{Black, Gray, White};
@@ -9,14 +8,14 @@ use Colors::{Black, Gray, White};
 #[cfg(feature = "devkit")]
 #[derive(Debug)]
 pub struct VMHeap {
-    heap_memory: Vec<RwLock<AllocatedObject>>,
+    heap_memory: Vec<AllocatedObject>,
     heap_capacity: usize,
     heap_free: usize,
 }
 
 #[cfg(not(feature = "devkit"))]
 pub struct VMHeap {
-    heap_memory: Vec<RwLock<AllocatedObject>>,
+    heap_memory: Vec<AllocatedObject>,
     heap_capacity: usize,
     heap_free: usize,
 }
@@ -86,7 +85,7 @@ impl VMHeap {
             process::exit(HEAP_ALLOC_ERR);
         }
 
-        self.heap_memory.push(RwLock::from(object));
+        self.heap_memory.push(object);
 
         dev_print!("{:?}", self.heap_memory);
 
@@ -96,7 +95,7 @@ impl VMHeap {
     pub fn get_obj(&mut self, address: usize) -> AllocatedObject {
         // let obj = self.heap_memory[address].as_ptr();
 
-        self.heap_memory[address].read().unwrap().clone()
+        self.heap_memory[address].clone()
     }
 
     pub fn free(&mut self, alloc: Allocation) {
