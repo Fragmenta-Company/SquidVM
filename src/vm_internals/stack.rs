@@ -5,22 +5,22 @@ use arrayvec::ArrayVec;
 const STACK_SIZE: usize = 2000;
 
 debug_derive!(
-/// Stack implementation.
-pub struct VMStack {
-    /// Contains all the values pushed into the stack.
-    ///
-    /// It's an ArrayVec so all the data is contained in the stack.
-    /// Being that it has the speed of a real stack.
-    stack_memory: ArrayVec<Immediates, STACK_SIZE>,
+    /// Stack implementation.
+    pub struct VMStack {
+        /// Contains all the values pushed into the stack.
+        ///
+        /// It's an ArrayVec so all the data is contained in the stack.
+        /// Being that it has the speed of a real stack.
+        stack_memory: ArrayVec<Immediates, STACK_SIZE>,
 
-    /// The stack capacity.
-    stack_capacity: usize,
+        /// The stack capacity.
+        stack_capacity: usize,
 
-    /// Points to the latest value pushed into the stack.
-    ///
-    /// Used mostly for monitoring the stack current size.
-    top: usize,
-}
+        /// Points to the latest value pushed into the stack.
+        ///
+        /// Used mostly for monitoring the stack current size.
+        top: usize,
+    }
 );
 
 impl VMStack {
@@ -59,7 +59,7 @@ impl VMStack {
             return Err(format!(
                 "[ STACK OVERFLOW ] Stack Capacity: {}, Stack Size: {}",
                 self.stack_capacity, self.top
-            ))
+            ));
         }
 
         self.stack_memory.push(data);

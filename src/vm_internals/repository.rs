@@ -1,16 +1,16 @@
 use fnv::FnvHashMap;
 
 debug_derive!(
-/// ## Repository struct implementation.
-///
-/// Used mostly for global variables.
-pub struct VMRepository {
-    /// Contains pointers to the heap
-    pub repo_var_pointers: FnvHashMap<usize, usize>,
+    /// ## Repository struct implementation.
+    ///
+    /// Used mostly for global variables.
+    pub struct VMRepository {
+        /// Contains pointers to the heap
+        pub repo_var_pointers: FnvHashMap<usize, usize>,
 
-    /// Contains the repository's capacity
-    pub repo_capacity: usize,
-}
+        /// Contains the repository's capacity
+        pub repo_capacity: usize,
+    }
 );
 
 impl VMRepository {

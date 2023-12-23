@@ -1,11 +1,14 @@
-use std::sync::{Arc, RwLock};
-use crate::vm_internals::{VMHeap, VMRepository, VMStack};
-use crate::vm_internals::immediates::Immediates::{
-    self, Array, Binary, Boolean, Float, Integer, Null, String as TypeString, UInteger, RefPtr
+use crate::instructiondefs::{
+    AVP, D_VFD, D_VFS, F_ADD, F_DVD, F_EXP, F_I_DVD, F_I_EXP, F_MUL, F_SUB, HALT, I_ADD, I_DVD,
+    I_EXP, I_MUL, I_SUB, JMPFD, JMPFS, PDFS, PDTS, PRTAFD, PRTAFS, PRTFD, PRTFS,
 };
+use crate::vm_internals::immediates::Immediates::{
+    self, Array, Binary, Boolean, Float, Integer, Null, RefPtr, String as TypeString, UInteger,
+};
+use crate::vm_internals::{open_window, print_any};
+use crate::vm_internals::{VMHeap, VMRepository, VMStack};
 use async_std::task;
-use crate::instructiondefs::{AVP, D_VFD, D_VFS, F_ADD, F_DVD, F_EXP, F_I_DVD, F_I_EXP, F_MUL, F_SUB, HALT, I_ADD, I_DVD, I_EXP, I_MUL, I_SUB, JMPFD, JMPFS, PDFS, PDTS, PRTAFD, PRTAFS, PRTFD, PRTFS};
-use crate::vm_internals::{open_window,print_any};
+use std::sync::{Arc, RwLock};
 
 /// Creates new threads that the VM can handle,
 /// almost the same implementation of the VMStarter struct
@@ -24,7 +27,6 @@ pub struct VMThread<'a> {
 }
 
 impl VMThread<'_> {
-
     /// Contains all the instructions and their implementations.
     /// Receives an instruction and works around it.
     ///
@@ -507,7 +509,9 @@ impl VMThread<'_> {
 
                 if let UInteger(var_name) = var_name {
                     if let UInteger(var_pointer) = var_pointer {
-                        repo.write().unwrap().add_var(var_name as usize, var_pointer as usize);
+                        repo.write()
+                            .unwrap()
+                            .add_var(var_name as usize, var_pointer as usize);
                         Ok(())
                     } else {
                         Err("[ INVALID VAR POINTER ]".to_string())
@@ -522,7 +526,10 @@ impl VMThread<'_> {
                 let repo = Arc::clone(&self.repository);
 
                 if let UInteger(var_name) = self.data {
-                    println!("Pointer: {}", repo.write().unwrap().get_var(var_name as usize));
+                    println!(
+                        "Pointer: {}",
+                        repo.write().unwrap().get_var(var_name as usize)
+                    );
                     Ok(())
                 } else {
                     Err("[ WRONG VARIABLE NAME ]".to_string())
@@ -541,7 +548,10 @@ impl VMThread<'_> {
                 };
 
                 if let UInteger(var_name) = value {
-                    println!("Pointer: {}", repo.write().unwrap().get_var(var_name as usize));
+                    println!(
+                        "Pointer: {}",
+                        repo.write().unwrap().get_var(var_name as usize)
+                    );
                     Ok(())
                 } else {
                     Err("[ WRONG VARIABLE NAME ]".to_string())
@@ -552,15 +562,9 @@ impl VMThread<'_> {
 
                 task::block_on(open_window());
                 Ok(())
-
             }
-            0x19 => {
-                Err("Threads cannot be created inside other threads!".to_string())
-            }
-            _ => {
-                Err("[ UNKNOWN INSTRUCTION ]".to_string())
-            }
+            0x19 => Err("Threads cannot be created inside other threads!".to_string()),
+            _ => Err("[ UNKNOWN INSTRUCTION ]".to_string()),
         }
     }
-
 }

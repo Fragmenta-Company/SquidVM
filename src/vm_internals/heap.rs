@@ -5,12 +5,12 @@ use std::{mem, process};
 use Colors::{Black, Gray, White};
 
 debug_derive!(
-/// Heap implementation
-pub struct VMHeap {
-    heap_memory: Vec<AllocatedObject>,
-    heap_capacity: usize,
-    heap_free: usize,
-}
+    /// Heap implementation
+    pub struct VMHeap {
+        heap_memory: Vec<AllocatedObject>,
+        heap_capacity: usize,
+        heap_free: usize,
+    }
 );
 
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
