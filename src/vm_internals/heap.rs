@@ -4,21 +4,14 @@ use std::{mem, process};
 #[allow(unused_imports)]
 use Colors::{Black, Gray, White};
 
+debug_derive!(
 /// Heap implementation
-#[cfg(feature = "devkit")]
-#[derive(Debug)]
 pub struct VMHeap {
     heap_memory: Vec<AllocatedObject>,
     heap_capacity: usize,
     heap_free: usize,
 }
-
-#[cfg(not(feature = "devkit"))]
-pub struct VMHeap {
-    heap_memory: Vec<AllocatedObject>,
-    heap_capacity: usize,
-    heap_free: usize,
-}
+);
 
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
 pub struct Allocation {
