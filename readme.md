@@ -6,6 +6,7 @@
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Fragmenta-Company/SquidVM)
 ![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/Fragmenta-Company/SquidVM?label=last%20pre-release)
 ![GitHub License](https://img.shields.io/github/license/Fragmenta-Company/SquidVM)
+![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 
 # **What is SquidVM?**
 
@@ -36,12 +37,12 @@ Download the installation script for:
 After that, you will need to make the script executable:
 
 ```bash
-chmod +x ./install-svdk.sh
+$ chmod +x ./install-svdk.sh
 ```
 
 Then run it normally:
 ```bash
-sudo ./install-svdk.sh
+$ sudo ./install-svdk.sh
 ```
 
 ### Done!
@@ -73,13 +74,13 @@ If you are trying to run your compiled Squid code:
 
 Type this into the terminal:
 ```bash
-squidvm --help
+$ squidvm --help
 ```
 If you are a VM developer or trying to debug a bit:
 
 Type this instead:
 ```bash
-svdk --help
+$ svdk --help
 ```
 - [Access documentation here](https://squidvmdocs.fragmenta.org/)
 to get more info about the internal function of the VM.
@@ -98,7 +99,7 @@ I'll probably make a simple wiki for that in some time! _Just wait for it._
 
 ### As of [SquidVM 0.6.0-alpha](https://github.com/Fragmenta-Company/SquidVM/releases/tag/V0.6.0-alpha):
 
-The command require tags now!
+The command requires tags now!
 
 For binary files:
 `./squid-vm(.exe) -b testbinary`
@@ -106,7 +107,7 @@ For binary files:
 For SARs:
 `./squid-vm(.exe) -s sarfile`
 
-Both doesn't need the extension to be typed.
+Both don't need the extension to be typed.
 But it's still there.
 
 ### For [versions between 0.4.0 (pre-alpha) and 0.5.2-alpha](https://github.com/Fragmenta-Company/SquidVM/compare/V0.4.0...V0.6.0-alpha):
@@ -123,7 +124,7 @@ SARs or Squid ARchives are files that are a group of binary files combined
 into a single archive.
 
 ### So the files can be compressed or encrypted?
-For now it's just a plan to add, but yes, if all goes well, it will have
+For now, it's just a plan to add, but yes, if all goes well, it will have
 support for all that and more in the future.
 
 **IT'S NOT IMPLEMENTED YET!**

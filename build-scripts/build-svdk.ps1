@@ -1,3 +1,9 @@
+# Get the parent folder path
+$parentFolder = Split-Path -Path $PSScriptRoot -Parent
+
+# Change the current location to the parent folder
+Set-Location -Path $parentFolder
+
 #If logs directory does not exist
 if (-not (Test-Path ./target/logs -PathType Container)) {
     #Create logs folder
