@@ -52,10 +52,7 @@ fn to_boolean(value: u8) -> Result<Immediates, &'static str> {
     Ok(Boolean(bool))
 }
 
-fn get_data(data_type: u8,
-            mut file: &File,
-            mut buffer: [u8; 2]) -> (Immediates, u64) {
-
+fn get_data(data_type: u8, mut file: &File, mut buffer: [u8; 2]) -> (Immediates, u64) {
     let mut offset = 0;
 
     let data;
@@ -81,25 +78,19 @@ fn get_data(data_type: u8,
         INTEGER => {
             // Integer type
             offset += 2;
-            data = Integer(
-                handle_error(file.read_i64::<LittleEndian>(), FILE_DATA_ERR),
-            );
+            data = Integer(handle_error(file.read_i64::<LittleEndian>(), FILE_DATA_ERR));
             offset += 8;
         }
         UINTEGER => {
             // Unsigned Integer type
             offset += 2;
-            data = UInteger(
-                handle_error(file.read_u64::<LittleEndian>(), FILE_DATA_ERR),
-            );
+            data = UInteger(handle_error(file.read_u64::<LittleEndian>(), FILE_DATA_ERR));
             offset += 8;
         }
         FLOAT => {
             // Float type
             offset += 2;
-            data = Float(
-                handle_error(file.read_f64::<LittleEndian>(), FILE_DATA_ERR),
-            );
+            data = Float(handle_error(file.read_f64::<LittleEndian>(), FILE_DATA_ERR));
             offset += 8;
         }
         STRING8 => {
@@ -404,7 +395,7 @@ impl FileReader {
                     instructions.push(buffer[0]);
                     let (file_data, data_offset) = get_data(buffer[1], &file, buffer);
                     data.push(file_data);
-                    offset+=data_offset;
+                    offset += data_offset;
                 }
                 JMPFD => {
                     instructions.push(0x0C);
