@@ -21,3 +21,33 @@ pub const VM_MAJOR: &str = env!("CARGO_PKG_VERSION_MAJOR");
 
 /// Minor version of the SquidVM instance.
 pub const VM_MINOR: &str = env!("CARGO_PKG_VERSION_MINOR");
+
+/// Defines the null type while reading from file.
+pub const NULL: u8 = 0x00;
+
+/// Defines the bool type while reading from file.
+pub const BOOL: u8 = 0x01;
+
+/// Defines the integer type while reading from file.
+pub const INTEGER: u8 = 0x02;
+
+/// Defines the unsigned integer type while reading from file.
+pub const UINTEGER: u8 = 0x03;
+
+/// Defines the float type while reading from file.
+pub const FLOAT: u8 = 0x04;
+
+/// Defines the 8bit string type while reading from file.
+pub const STRING8: u8 = 0x0F;
+
+/// Defines the 16bit string  type while reading from file.
+pub const STRING16: u8 = 0x1F;
+
+/// Defines the 32bit string  type while reading from file.
+pub const STRING32: u8 = 0x2F;
+
+/// Defines the 64bit string  type while reading from file.
+pub const STRING64: u8 = 0x3F;
+
+/// Defines the 128bit string  type while reading from file.
+pub const STRING128: u8 = 0x4F;
