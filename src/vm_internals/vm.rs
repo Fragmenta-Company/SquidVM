@@ -7,22 +7,21 @@ use crate::vm_internals::vm_threads::VMThread;
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
 use async_std::task;
 use async_std::task::JoinHandle;
-use std::process;
-use std::sync::{Arc, RwLock};
-use std::time::Duration;
 use rand::Rng;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
-
+use std::sync::{Arc, RwLock};
+use std::time::Duration;
+use std::{process, thread};
 
 /// Handles errors while pop from the stack
 fn handle_stack_err(result: Result<Immediates, String>) -> Immediates {
     match result {
         Ok(obj) => obj,
         Err(err) => {
-            eprintln!("\x1B[41m{err}\x1B[0m");
+            eprintln!("\x1B[41mStack error: {err}\x1B[0m");
             process::exit(11);
         }
     }
@@ -74,26 +73,28 @@ pub fn print_any(printable: Immediates) {
 
 /// Open new window ***WIP***
 pub async fn open_window() -> Result<(), String> {
-
     let sdl_ctx = sdl2::init().unwrap();
 
     let video_sub = sdl_ctx.video()?;
 
-    let mut window = video_sub.window("Random line drawer", 800, 600)
-        .position_centered().vulkan().resizable().build().map_err(|e| e.to_string())?;
+    let mut window = video_sub
+        .window("Random line drawer", 800, 600)
+        .position_centered()
+        .resizable()
+        .build()
+        .map_err(|e| e.to_string())?;
 
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
 
     let mut event_pump = sdl_ctx.event_pump()?;
 
     loop {
-
         let mut rng = rand::thread_rng();
 
-        let first:i32 = rng.gen_range(0..=2000);
-        let second:i32 = rng.gen_range(0..=2000);
-        let third:i32 = rng.gen_range(0..=2000);
-        let forth:i32 = rng.gen_range(0..=2000);
+        let first: i32 = rng.gen_range(0..=2000);
+        let second: i32 = rng.gen_range(0..=2000);
+        let third: i32 = rng.gen_range(0..=2000);
+        let forth: i32 = rng.gen_range(0..=2000);
 
         for event in event_pump.poll_iter() {
             match event {
@@ -115,13 +116,13 @@ pub async fn open_window() -> Result<(), String> {
         canvas.set_draw_color(Color::RGB(255, 0, 0));
 
         // Draw something on the canvas here...
-        canvas.draw_line(Point::new(first ,second), Point::new(third, forth))?;
+        canvas.draw_line(Point::new(first, second), Point::new(third, forth))?;
         canvas.set_draw_color(Color::RGB(0, 0, 255));
-        canvas.draw_line(Point::new(forth ,first), Point::new(second, third))?;
+        canvas.draw_line(Point::new(forth, first), Point::new(second, third))?;
         canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.draw_line(Point::new(third ,first), Point::new(first, forth))?;
+        canvas.draw_line(Point::new(third, first), Point::new(first, forth))?;
         canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.draw_line(Point::new(third ,forth), Point::new(second, forth))?;
+        canvas.draw_line(Point::new(third, forth), Point::new(second, forth))?;
 
         canvas.draw_rect(Rect::new(forth, forth, third as u32, first as u32))?;
         canvas.draw_rect(Rect::new(first, forth, first as u32, second as u32))?;
@@ -132,9 +133,8 @@ pub async fn open_window() -> Result<(), String> {
         canvas.present();
 
         // Sleep for 1/60th of a second to limit the frame rate
-        std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        // task::sleep(Duration::new(0, 1_000_000_000u32 / 60)).await;
     }
-
 }
 
 /// Put #[derive(Debug)] into struct if devkit feature is enabled
@@ -202,7 +202,11 @@ debug_derive!(
         /// * Only use global variables when they are needed, since they can be a security risk.
         repository: Arc<RwLock<VMRepository>>,
 
-        pub handlers: Vec<JoinHandle<Result<(), String>>>,
+        /// Task handlers to await if the program ends too quickly.
+        pub task_handlers: Vec<JoinHandle<Result<(), String>>>,
+
+        /// Thread handlers to join if the program ends too quickly.
+        pub thread_handlers: Vec<thread::JoinHandle<Result<(), String>>>,
     }
 );
 
@@ -219,7 +223,8 @@ impl VMStarter {
             stack: VMStack::new(),
             heap: Arc::new(RwLock::from(VMHeap::new(heap_size))),
             repository: Arc::new(RwLock::from(VMRepository::new(repository_size))),
-            handlers: Vec::new(),
+            task_handlers: Vec::new(),
+            thread_handlers: Vec::new(),
         }
     }
 
@@ -533,50 +538,46 @@ impl VMStarter {
 
                 task::block_on(open_window());
             }
-            0x19 => {
-                async fn create_new_thread(
+            NTASK => {
+                // ***WIP***
+                async fn create_new_task(
                     heap: Arc<RwLock<VMHeap>>,
                     repo: Arc<RwLock<VMRepository>>,
                     threadnum: usize,
                 ) -> Result<(), String> {
-                    let mut thread = VMThread {
-                        running: true,
-                        pc: 0,
-                        instruction: 0,
-                        instructions: vec![
-                            0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
-                            0x0A, 0x0A, 0x01, 0x14, 0x01, 0,
-                        ],
-                        data: Null,
-                        data_vault: vec![
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Null,
-                            Null,
-                        ],
-                        stack: VMStack::new(),
-                        heap: &heap,
-                        repository: &repo,
-                    };
+                    let instructions = vec![
+                        0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
+                        0x0A, 0x0A, 0x01, 0x14, 0x01, 0,
+                    ];
+
+                    let data = vec![
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Null,
+                        Null,
+                    ];
+
+                    let mut thread = VMThread::new(instructions, data, &heap, &repo);
 
                     let mut error: Option<String> = None;
 
                     while thread.running {
-                        dev_print!("Thread Instructions: {:X?}", thread.instructions);
+                        #[cfg(feature = "devkit")]
+                        dev_print!("Task Instructions: {:X?}", thread.instructions);
 
                         while thread.pc < thread.instructions.len() {
                             let instruction = thread.instructions[thread.pc];
@@ -586,14 +587,16 @@ impl VMStarter {
                             match thread.instructor(instruction) {
                                 Ok(_) => {
                                     #[cfg(feature = "devkit")]
-                                    dev_print!("Thread {} is working!", threadnum);
+                                    dev_print!("Task {} is working!", threadnum);
                                 }
                                 Err(err) => {
-                                    error = Some(err);
+                                    let task_err = format!("Task {threadnum} error: {err}");
+                                    error = Some(task_err);
                                     thread.running = false;
                                 }
                             };
-                            dev_print!("{}", thread.pc);
+                            #[cfg(feature = "devkit")]
+                            dev_print!("Task {} PC: {}", threadnum, thread.pc);
                             // println!("Length: {}", self.heap.heap_memory.len());
                         }
 
@@ -607,6 +610,9 @@ impl VMStarter {
                     if let Some(err) = error {
                         Err(err)
                     } else {
+                        #[cfg(feature = "devkit")]
+                        dev_print!("\x1B[42mTask {threadnum} ended successfully\x1B[0m");
+
                         Ok(())
                     }
                 }
@@ -614,15 +620,113 @@ impl VMStarter {
                 let heap = Arc::clone(&self.heap);
                 let repo = Arc::clone(&self.repository);
 
-                #[cfg(feature = "devkit")]
-                let threadnum = self.handlers.len();
+                let threadnum = self.task_handlers.len();
 
-                #[cfg(not(feature = "devkit"))]
-                let threadnum = 0usize;
+                let handle = task::spawn(create_new_task(heap, repo, threadnum));
 
-                let handle = task::spawn(create_new_thread(heap, repo, threadnum));
+                // println!("Data: {:?}", self.data);
+                if let Boolean(bool) = self.data {
+                    if bool {
+                        self.task_handlers.push(handle);
+                    }
+                }
+            }
+            NTHRD => {
+                // ***WIP***
+                fn create_new_thread(
+                    heap: Arc<RwLock<VMHeap>>,
+                    repo: Arc<RwLock<VMRepository>>,
+                    threadnum: usize,
+                ) -> Result<(), String> {
+                    let instructions = vec![
+                        0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
+                        0x0A, 0x0A, 0x01, 0x14, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+                    ];
 
-                self.handlers.push(handle);
+                    let data = vec![
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Integer(1),
+                        Integer(1),
+                        Null,
+                        Null,
+                        Null,
+                        Null,
+                        Null,
+                        Null,
+                        Null,
+                        Null,
+                    ];
+
+                    let mut thread = VMThread::new(instructions, data, &heap, &repo);
+
+                    let mut error: Option<String> = None;
+
+                    while thread.running {
+                        #[cfg(feature = "devkit")]
+                        dev_print!("Thread Instructions: {:X?}", thread.instructions);
+
+                        while thread.pc < thread.instructions.len() {
+                            let instruction = thread.instructions[thread.pc];
+                            thread.data = thread.data_vault[thread.pc].clone();
+                            thread.instruction = instruction;
+                            thread.pc += 1;
+                            match thread.instructor(instruction) {
+                                Ok(_) => {
+                                    #[cfg(feature = "devkit")]
+                                    dev_print!("Thread {} is working!", threadnum);
+                                }
+                                Err(err) => {
+                                    let thread_err = format!("Thread {threadnum} error: {err}");
+                                    error = Some(thread_err);
+                                    thread.running = false;
+                                }
+                            };
+                            #[cfg(feature = "devkit")]
+                            dev_print!("Thread {} PC: {}", threadnum, thread.pc);
+                            // println!("Length: {}", self.heap.heap_memory.len());
+                        }
+
+                        if thread.pc > thread.instructions.len() {
+                            panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
+                        }
+
+                        thread.pc += 1;
+                    }
+
+                    if let Some(err) = error {
+                        Err(err)
+                    } else {
+                        #[cfg(feature = "devkit")]
+                        dev_print!("\x1B[42mThread {threadnum} ended successfully\x1B[0m");
+
+                        Ok(())
+                    }
+                }
+
+                let heap = Arc::clone(&self.heap);
+                let repo = Arc::clone(&self.repository);
+
+                let threadnum = self.thread_handlers.len();
+
+                let handle = thread::spawn(move || create_new_thread(heap, repo, threadnum));
+
+                // println!("Data: {:?}", self.data);
+                if let Boolean(bool) = self.data {
+                    if bool {
+                        self.thread_handlers.push(handle);
+                    }
+                }
             }
             _ => {
                 panic!("[ UNKNOWN INSTRUCTION ]")
