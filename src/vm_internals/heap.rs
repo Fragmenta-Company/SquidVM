@@ -103,5 +103,5 @@ impl VMHeap {
         drop(alloc);
     }
 
-    pub fn mark_roots() {}
+    pub fn mark_roots(&mut self) {}
 }
