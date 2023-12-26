@@ -14,7 +14,7 @@ devkit = []
 
 [profile.release]
 strip = "symbols"
-lto = true
+#lto = true
 
 [dependencies]
 simple_logger = "4.3"
