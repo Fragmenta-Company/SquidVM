@@ -1,6 +1,6 @@
 use crate::errdef::*;
 use crate::instructiondefs::*;
-use crate::sqdbin_reader::defs::*;
+use crate::sqd_reader::sqdbin_reader::defs::*;
 use crate::vm_internals::immediates::Immediates::{
     self, Boolean, Float, Integer, Null, String as TypeString, UInteger,
 };
@@ -52,10 +52,7 @@ fn to_boolean(value: u8) -> Result<Immediates, &'static str> {
     Ok(Boolean(bool))
 }
 
-fn get_data(data_type: u8,
-            mut file: &File,
-            mut buffer: [u8; 2]) -> (Immediates, u64) {
-
+fn get_data(data_type: u8, mut file: &File, mut buffer: [u8; 2]) -> (Immediates, u64) {
     let mut offset = 0;
 
     let data;
@@ -81,25 +78,19 @@ fn get_data(data_type: u8,
         INTEGER => {
             // Integer type
             offset += 2;
-            data = Integer(
-                handle_error(file.read_i64::<LittleEndian>(), FILE_DATA_ERR),
-            );
+            data = Integer(handle_error(file.read_i64::<LittleEndian>(), FILE_DATA_ERR));
             offset += 8;
         }
         UINTEGER => {
             // Unsigned Integer type
             offset += 2;
-            data = UInteger(
-                handle_error(file.read_u64::<LittleEndian>(), FILE_DATA_ERR),
-            );
+            data = UInteger(handle_error(file.read_u64::<LittleEndian>(), FILE_DATA_ERR));
             offset += 8;
         }
         FLOAT => {
             // Float type
             offset += 2;
-            data = Float(
-                handle_error(file.read_f64::<LittleEndian>(), FILE_DATA_ERR),
-            );
+            data = Float(handle_error(file.read_f64::<LittleEndian>(), FILE_DATA_ERR));
             offset += 8;
         }
         STRING8 => {
@@ -267,13 +258,12 @@ impl FileReader {
                         let minor = error_handler(file.read_u16::<LittleEndian>());
 
                         let wrong_ver = if !force_newer_ver {
-                            // Binary major is higher than VM's
-                            if major > handle_error(VM_MAJOR.parse(), METADATA_ERR) {
-                                true
-                            } else if minor > handle_error(VM_MINOR.parse(), METADATA_ERR)
-                                && major == handle_error(VM_MAJOR.parse::<u32>(), METADATA_ERR)
+                            // Binary major is higher than VM's or
+                            // Binary major is equal to VM's, but minor is higher
+                            if major > handle_error(VM_MAJOR.parse(), METADATA_ERR)
+                                || minor > handle_error(VM_MINOR.parse(), METADATA_ERR)
+                                    && major == handle_error(VM_MAJOR.parse::<u32>(), METADATA_ERR)
                             {
-                                // Binary major is equal to VM's, but minor is higher
                                 true
                             } else {
                                 // Binary have correct version
@@ -404,7 +394,7 @@ impl FileReader {
                     instructions.push(buffer[0]);
                     let (file_data, data_offset) = get_data(buffer[1], &file, buffer);
                     data.push(file_data);
-                    offset+=data_offset;
+                    offset += data_offset;
                 }
                 JMPFD => {
                     instructions.push(0x0C);

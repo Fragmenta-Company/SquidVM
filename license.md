@@ -169,6 +169,7 @@ accepting any such warranty or additional liability.
 
 _END OF TERMS AND CONDITIONS_
 
+
     Copyright 2023 Nicolas Renan Machado Dias
     
     Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,11 +1,15 @@
 # Security Policy
 
-## Supported Versions
+[//]: # (## Supported Versions)
 
-| Version       | Supported          |
-|---------------|--------------------|
-| 0.9.x-alpha   | :white_check_mark: |
-| < 0.8.0-alpha | :x:                |
+[//]: # ()
+[//]: # (| Version       | Supported          |)
+
+[//]: # (|---------------|--------------------|)
+
+[//]: # (| 0.10.x-alpha  | :white_check_mark: |)
+
+[//]: # (| < 0.9.0-alpha | :x:                |)
 
 ## Reporting a Vulnerability
 
