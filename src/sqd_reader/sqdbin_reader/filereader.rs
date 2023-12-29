@@ -258,13 +258,12 @@ impl FileReader {
                         let minor = error_handler(file.read_u16::<LittleEndian>());
 
                         let wrong_ver = if !force_newer_ver {
-                            // Binary major is higher than VM's
-                            if major > handle_error(VM_MAJOR.parse(), METADATA_ERR) {
-                                true
-                            } else if minor > handle_error(VM_MINOR.parse(), METADATA_ERR)
-                                && major == handle_error(VM_MAJOR.parse::<u32>(), METADATA_ERR)
+                            // Binary major is higher than VM's or
+                            // Binary major is equal to VM's, but minor is higher
+                            if major > handle_error(VM_MAJOR.parse(), METADATA_ERR)
+                                || minor > handle_error(VM_MINOR.parse(), METADATA_ERR)
+                                    && major == handle_error(VM_MAJOR.parse::<u32>(), METADATA_ERR)
                             {
-                                // Binary major is equal to VM's, but minor is higher
                                 true
                             } else {
                                 // Binary have correct version

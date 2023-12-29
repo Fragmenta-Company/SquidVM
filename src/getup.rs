@@ -36,7 +36,7 @@ pub fn get_update() -> Vec<String> {
 
     let mut latest_version: String = String::from(parsed_data);
 
-    latest_version = String::from(latest_version.trim_start_matches("V"));
+    latest_version = String::from(latest_version.trim_start_matches('V'));
 
     let latest_version: Vec<&str> = latest_version.split(['.', '-']).collect();
 
@@ -105,7 +105,7 @@ pub fn get_update() -> Vec<String> {
 
     let has_new_ver = new_ver != 0;
 
-    if has_new_ver || details_different && !has_new_ver {
+    if has_new_ver || details_different {
         let newer: Result<&str, &'static str> = if latest_ver_greater_3 {
             match latest_version[3] {
                 "alpha" => Ok("New version is available."),
@@ -236,5 +236,4 @@ pub fn get_update() {
     assert_eq!(majors[0], 10000);
     assert_eq!(minors[0], 10000);
     assert_eq!(patchs[0], 10000);
-
 }

@@ -1,23 +1,20 @@
 #![cfg(test)]
-use std::process;
-use async_std::task;
-use clap::Parser;
-use crate::argsdef::{Args, string_to_bytesize};
+use crate::argsdef::{string_to_bytesize, Args};
 use crate::errdef::MAXMEM_CONVERSION_ERR;
 use crate::getup::get_update;
 use crate::sqd_reader::sqdbin_reader::FileReader;
 use crate::vm_internals::VMStarter;
+use async_std::task;
+use clap::Parser;
+use std::process;
 
 #[test]
 fn test_getup() {
-
     get_update();
-
 }
 
 #[test]
 fn test_argsdef() {
-
     let args = Args::try_parse();
 
     match args {
@@ -119,12 +116,10 @@ fn test_argsdef() {
             process::exit(MAXMEM_CONVERSION_ERR);
         }
     }
-
 }
 
 #[test]
 fn test_main_bin() {
-
     let mut fileread: Option<FileReader> = None;
     let realmaxmem = "100MB".to_string();
     let maxmem;
@@ -178,5 +173,4 @@ fn test_main_bin() {
     }
 
     dev_print!("Exiting...");
-
 }

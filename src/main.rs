@@ -55,7 +55,7 @@ mod tests;
 
 use argsdef::*;
 use async_std::task;
-use clap::{Error, Parser};
+use clap::Parser;
 use errdef::*;
 use sqd_reader::sqdbin_reader::FileReader;
 use std::process;
@@ -117,7 +117,6 @@ fn main() {
     // println!("3: {:?}", &heap);
 
     let mut fileread: Option<FileReader> = None;
-    let maxmem;
     let mut bin: Option<String> = None;
     let mut sar: Option<String> = None;
 
@@ -125,15 +124,15 @@ fn main() {
 
     version_args(&args);
 
-    match string_to_bytesize(args.maxmem) {
+    let maxmem = match string_to_bytesize(args.maxmem) {
         Ok(mem) => {
-            maxmem = mem;
+            mem
         }
         Err(err) => {
             eprintln!("\x1B[31m{}\x1b[0m", err);
             process::exit(MAXMEM_CONVERSION_ERR);
         }
-    }
+    };
 
     // Checks if is there a binary file specificed.
     if let Some(binary) = args.bin {
