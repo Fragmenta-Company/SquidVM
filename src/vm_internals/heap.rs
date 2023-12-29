@@ -100,6 +100,7 @@ impl VMHeap {
 
         dev_print!("{:?}", self.heap_memory.swap_remove(alloc.index));
 
+        drop(alloc);
     }
 
     pub fn mark_roots(&mut self) {}
