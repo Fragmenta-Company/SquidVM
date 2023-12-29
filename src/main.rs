@@ -30,40 +30,37 @@ const VM_NAMING_CONVENTION: &str = "SquidVM";
 #[macro_use]
 mod macrodefs;
 
-/// All logic used to run binary or sar files.
-mod sqd_reader;
+/// Contains the sqdbin binary files reader implementation
+mod sqdbin_reader;
 
-/// Contains the entirety of the VM internal implementation.
+/// Contains the entirety of the VM internal implementation
 mod vm_internals;
 
-/// Used for cli arguments definintion.
+/// Used for cli arguments definintion
 mod argsdef;
 
 /// Defines the exit codes/error codes that the program will throw.
 mod errdef;
+/// Module used for reading the Squid ARchives
+mod sar_reader;
 
 /// Module used for getting updates from the GitHub repo.
 mod getup;
 /// Defines all the instructions.
 mod instructiondefs;
-/// Defines the target that show when using
-/// ```shell
-/// ./squid-vm(.exe) --version
-/// ```.
+/// Defines the target that show when using `./squid-vm(.exe) --version`
 mod targetdef;
-mod tests;
 
 use argsdef::*;
 use async_std::task;
 use clap::Parser;
 use errdef::*;
-use sqd_reader::sqdbin_reader::FileReader;
+use sqdbin_reader::FileReader;
 use std::process;
 use targetdef::*;
 use vm_internals::VMStarter;
 
 /// Contains tools for checking updates, getting current version and others.
-#[cfg(not(test))]
 fn version_args(args: &Args) {
     if args.check_updates {
         println!("Current version: {}", env!("CARGO_PKG_VERSION"));
@@ -91,7 +88,6 @@ fn version_args(args: &Args) {
 /// Get arguments from the command and creates a VMStarter object.
 /// Run vm.interpreter in loop while vm is running.
 /// File is read and converted to VM readble objects before the interpreter starts.
-#[cfg(not(test))]
 fn main() {
     // let heap = Arc::new(RwLock::from(VMHeap::new(1024)));
     //
@@ -117,6 +113,7 @@ fn main() {
     // println!("3: {:?}", &heap);
 
     let mut fileread: Option<FileReader> = None;
+    let maxmem;
     let mut bin: Option<String> = None;
     let mut sar: Option<String> = None;
 
@@ -124,15 +121,15 @@ fn main() {
 
     version_args(&args);
 
-    let maxmem = match string_to_bytesize(args.maxmem) {
+    match string_to_bytesize(args.maxmem) {
         Ok(mem) => {
-            mem
+            maxmem = mem;
         }
         Err(err) => {
             eprintln!("\x1B[31m{}\x1b[0m", err);
             process::exit(MAXMEM_CONVERSION_ERR);
         }
-    };
+    }
 
     // Checks if is there a binary file specificed.
     if let Some(binary) = args.bin {
