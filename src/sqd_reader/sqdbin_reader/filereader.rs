@@ -1,6 +1,6 @@
 use crate::errdef::*;
 use crate::instructiondefs::*;
-use crate::sqdbin_reader::defs::*;
+use crate::sqd_reader::sqdbin_reader::defs::*;
 use crate::vm_internals::immediates::Immediates::{
     self, Boolean, Float, Integer, Null, String as TypeString, UInteger,
 };

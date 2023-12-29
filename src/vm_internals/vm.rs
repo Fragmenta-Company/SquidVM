@@ -1,5 +1,5 @@
 use crate::instructiondefs::*;
-use crate::sqdbin_reader::FileReader;
+use crate::sqd_reader::sqdbin_reader::FileReader;
 use crate::vm_internals::immediates::Immediates::{
     self, Array, Binary, Boolean, Float, Integer, Null, RefPtr, String as TypeString, UInteger,
 };
@@ -13,7 +13,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
+// use std::time::Duration;
 use std::{process, thread};
 
 /// Handles errors while pop from the stack
