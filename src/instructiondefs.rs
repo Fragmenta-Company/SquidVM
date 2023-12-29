@@ -69,9 +69,3 @@ pub const D_VFD: u8 = 0x16;
 
 /// Debug variable from stack.
 pub const D_VFS: u8 = 0x17;
-
-/// Creates new task.
-pub const NTASK: u8 = 0x19;
-
-/// Creates new thread.
-pub const NTHRD: u8 = 0x20;

@@ -13,9 +13,8 @@
 //! - All the collaborations made for the main project will need to have the same license!
 //!
 //! I still have lots of things
-//! ```rust
-//! todo!(); //in this project.
-//! ```
+//!
+//!     todo!(); //in this project.
 #![warn(missing_docs)]
 
 /// Changes from SquidVM to SVDK when feature devkit is enabled on compile time.
@@ -144,7 +143,7 @@ fn main() {
     }
 
     if let Some(bin) = bin {
-        fileread = Some(FileReader::new(bin, args.binver, args.force_newer_bin).unwrap());
+        fileread = Some(FileReader::new(bin, args.binver, args.force_newer_bin));
     } else if let Some(_sar) = sar {
     }
 
@@ -157,28 +156,17 @@ fn main() {
         }
     }
 
-    if vm.task_handlers.len() > 0 {
+    if vm.handlers.len() > 0 {
         task::block_on(async {
-            for task in vm.task_handlers {
+            for task in vm.handlers {
                 match task.await {
                     Ok(_) => {}
                     Err(err) => {
-                        eprintln!("\x1B[41m{}\x1B[0m", err);
+                        eprintln!("Handler error: \x1B[41m{}\x1B[0m", err);
                     }
                 };
             }
         });
-    }
-
-    if vm.thread_handlers.len() > 0 {
-        for task in vm.thread_handlers {
-            match task.join().unwrap() {
-                Ok(_) => {}
-                Err(err) => {
-                    eprintln!("\x1B[41m{}\x1B[0m", err);
-                }
-            };
-        }
     }
 
     dev_print!("Exiting...");
