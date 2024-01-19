@@ -1,5 +1,5 @@
 //! <p style="text-align: center;">
-//!     <img src="https://d1drfx3idpovxr.cloudfront.net/squid-vm.svg"
+//!     <img src="https://d1qrumake2q7xa.cloudfront.net/squid-vm.svg"
 //!     alt="SquidVM Logo" width="250px" />
 //! </p>
 //!
