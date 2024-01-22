@@ -581,9 +581,11 @@ impl VMThread<'_> {
             0x18 => {
                 dev_print!("[ NTW ]");
 
-                match task::block_on(open_window()) {
-                    Ok(_) => Ok(()),
-                    Err(err) => Err(err),
+                unsafe {
+                    match task::block_on(open_window()) {
+                        Ok(_) => Ok(()),
+                        Err(err) => Err(err),
+                    }
                 }
             }
             NTASK => {
