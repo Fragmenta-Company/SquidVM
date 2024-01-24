@@ -16,3 +16,5 @@ pub const HEAP_ALLOC_ERR: i32 = 2;
 /// Error that happens when trying to check for updates.
 /// Error out while trying to get latest update or while trying to parse JSON.
 pub const UPDATE_CHECK_ERR: i32 = 7;
+
+pub const FEATURE_ERR: i32 = 10;
