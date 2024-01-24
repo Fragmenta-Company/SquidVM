@@ -487,13 +487,13 @@ impl VMStarter {
             NTASK => {
 
                 #[cfg(not(feature = "green-threads"))]
-                if true {
+                {
                     println!("'green-threads' feature not activated!");
                     process::exit(FEATURE_ERR);
                 }
 
                 #[cfg(feature = "green-threads")]
-                if true {
+                {
                 // ***WIP***
                     async fn create_new_task(
                         heap: Arc<RwLock<VMHeap>>,
