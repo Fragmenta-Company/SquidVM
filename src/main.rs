@@ -54,7 +54,10 @@ mod targetdef;
 mod tests;
 
 use argsdef::*;
+
+#[cfg(feature = "green-threads")]
 use async_std::task;
+
 use clap::Parser;
 use errdef::*;
 use sqd_reader::sqdbin_reader::FileReader;
@@ -62,9 +65,12 @@ use std::process;
 use targetdef::*;
 use vm_internals::VMStarter;
 
+
 /// Contains tools for checking updates, getting current version and others.
 #[cfg(not(test))]
 fn version_args(args: &Args) {
+
+    #[cfg(feature = "check-update")]
     if args.check_updates {
         println!("Current version: {}", env!("CARGO_PKG_VERSION"));
 
@@ -73,6 +79,14 @@ fn version_args(args: &Args) {
         });
 
         process::exit(0);
+    }
+
+    #[cfg(not(feature = "check-update"))]
+    if args.check_updates {
+        
+        eprintln!("'check-update' Feature not enabled!");
+        
+        process::exit(FEATURE_ERR);
     }
 
     if args.version {
@@ -93,28 +107,6 @@ fn version_args(args: &Args) {
 /// File is read and converted to VM readble objects before the interpreter starts.
 #[cfg(not(test))]
 fn main() {
-    // let heap = Arc::new(RwLock::from(VMHeap::new(1024)));
-    //
-    // let heap_clone1 = Arc::clone(&heap);
-    // let thread1 = thread::spawn(move || {
-    //     let alloc = heap_clone1.write().unwrap().malloc(Immediates::String("idk".parse().unwrap()));
-    //     println!("Thread 1: {:?}", alloc);
-    // });
-    //
-    // println!("1: {:?}", &heap);
-    //
-    // let heap_clone2 = Arc::clone(&heap);
-    // let thread2 = thread::spawn(move || {
-    //     let alloc = heap_clone2.write().unwrap().malloc(Immediates::String("smth".parse().unwrap()));
-    //     println!("Thread 2: {:?}", alloc);
-    // });
-    //
-    // println!("2: {:?}", &heap);
-    //
-    // thread1.join().unwrap();
-    // thread2.join().unwrap();
-    //
-    // println!("3: {:?}", &heap);
 
     let mut fileread: Option<FileReader> = None;
     let mut bin: Option<String> = None;
@@ -160,6 +152,7 @@ fn main() {
         }
     }
 
+    #[cfg(feature = "green-threads")]
     if vm.task_handlers.len() > 0 {
         task::block_on(async {
             for task in vm.task_handlers {
