@@ -5,16 +5,17 @@ use crate::vm_internals::immediates::Immediates::{
 };
 use crate::vm_internals::vm_threads::VMThread;
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
+use crate::errdef::*;
+
+#[cfg(feature = "green-threads")]
 use async_std::task;
+
+#[cfg(feature = "green-threads")]
 use async_std::task::JoinHandle;
-use rand::Rng;
-// use sdl2::event::Event;
-// use sdl2::keyboard::Keycode;
-// use sdl2::pixels::Color;
-// use sdl2::rect::{Point, Rect};
+
 use std::sync::{Arc, RwLock};
-// use std::time::Duration;
 use std::{process, thread};
+use std::fmt::Debug;
 
 /// Handles errors while pop from the stack
 fn handle_stack_err(result: Result<Immediates, String>) -> Immediates {
@@ -71,167 +72,13 @@ pub fn print_any(printable: Immediates) {
     }
 }
 
-use gtk::prelude::*;
-use relm4::{
-    gtk, Component, ComponentController, ComponentParts, ComponentSender, Controller, RelmApp,
-    SimpleComponent,
-};
-use relm4_components::web_image::{WebImage, WebImageMsg};
-
-const IMAGES: &[&str] = &[
-    "https://raw.githubusercontent.com/Relm4/Relm4/main/assets/Relm_logo_with_text.png",
-    "https://raw.githubusercontent.com/Relm4/Relm4/main/assets/Relm_logo.png",
-    "https://raw.githubusercontent.com/gtk-rs/gtk-rs.github.io/master/logo/gtk-rs.ico",
-    "https://avatars.githubusercontent.com/u/5430905",
-];
-
-#[derive(Debug)]
-enum AppMsg {
-    Next,
-    Unload,
-}
-
-struct App {
-    image: Controller<WebImage>,
-    idx: usize,
-}
-
-#[relm4::component]
-impl SimpleComponent for App {
-    type Init = ();
-    type Input = AppMsg;
-    type Output = ();
-
-    view! {
-        gtk::ApplicationWindow {
-            set_default_size: (300, 300),
-
-            #[wrap(Some)]
-            set_titlebar = &gtk::HeaderBar {
-                pack_start = &gtk::Button {
-                    set_label: "Next image",
-                    connect_clicked => AppMsg::Next,
-                },
-                pack_start = &gtk::Button {
-                    set_label: "Unload image",
-                    connect_clicked => AppMsg::Unload,
-                }
-            },
-
-            gtk::Box {
-                #[local_ref]
-                image -> gtk::Box {}
-            }
-        }
-    }
-
-    fn update(&mut self, msg: Self::Input, _: ComponentSender<Self>) {
-        match msg {
-            AppMsg::Next => {
-                self.idx = (self.idx + 1) % IMAGES.len();
-                self.image
-                    .emit(WebImageMsg::LoadImage(IMAGES[self.idx].to_owned()));
-            }
-            AppMsg::Unload => self.image.emit(WebImageMsg::Unload),
-        }
-    }
-
-    fn init(
-        _: Self::Init,
-        root: &Self::Root,
-        sender: ComponentSender<Self>,
-    ) -> ComponentParts<Self> {
-        let image = WebImage::builder().launch(IMAGES[0].to_owned()).detach();
-        let model = App { image, idx: 0 };
-
-        let image = model.image.widget();
-        let widgets = view_output!();
-
-        ComponentParts { model, widgets }
-    }
-}
-
+/// Open new window ***WIP***
 pub async fn open_window() -> Result<(), String> {
 
-    let app = RelmApp::new("relm4.example.open_button");
-    app.run::<App>(());
+
 
     Ok(())
 }
-
-pub fn open_window2() -> Result<(), String> {
-
-    let app = RelmApp::new("relm4.example.open_button");
-    app.run::<App>(());
-
-    Ok(())
-}
-
-/// Open new window ***WIP***
-// pub async fn open_window() -> Result<(), String> {
-//     let sdl_ctx = sdl2::init().unwrap();
-//
-//     let video_sub = sdl_ctx.video()?;
-//
-//     let mut window = video_sub
-//         .window("Random line drawer", 800, 600)
-//         .position_centered()
-//         .resizable()
-//         .build()
-//         .map_err(|e| e.to_string())?;
-//
-//     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
-//
-//     let mut event_pump = sdl_ctx.event_pump()?;
-//
-//     loop {
-//         let mut rng = rand::thread_rng();
-//
-//         let first: i32 = rng.gen_range(0..=2000);
-//         let second: i32 = rng.gen_range(0..=2000);
-//         let third: i32 = rng.gen_range(0..=2000);
-//         let forth: i32 = rng.gen_range(0..=2000);
-//
-//         for event in event_pump.poll_iter() {
-//             match event {
-//                 // Quit the program if the window is closed or the escape key is pressed
-//                 Event::Quit { .. }
-//                 | Event::KeyDown {
-//                     keycode: Some(Keycode::Escape),
-//                     ..
-//                 } => return Ok(()),
-//                 _ => {}
-//             }
-//         }
-//
-//         // Clear the canvas with black color
-//         canvas.set_draw_color(Color::RGB(255, 255, 255));
-//         canvas.clear();
-//
-//         // Set the draw color to red
-//         canvas.set_draw_color(Color::RGB(255, 0, 0));
-//
-//         // Draw something on the canvas here...
-//         canvas.draw_line(Point::new(first, second), Point::new(third, forth))?;
-//         canvas.set_draw_color(Color::RGB(0, 0, 255));
-//         canvas.draw_line(Point::new(forth, first), Point::new(second, third))?;
-//         canvas.set_draw_color(Color::RGB(0, 0, 0));
-//         canvas.draw_line(Point::new(third, first), Point::new(first, forth))?;
-//         canvas.set_draw_color(Color::RGB(0, 0, 0));
-//         canvas.draw_line(Point::new(third, forth), Point::new(second, forth))?;
-//
-//         canvas.draw_rect(Rect::new(forth, forth, third as u32, first as u32))?;
-//         canvas.draw_rect(Rect::new(first, forth, first as u32, second as u32))?;
-//         canvas.draw_rect(Rect::new(third, forth, third as u32, forth as u32))?;
-//         canvas.draw_rect(Rect::new(first, forth, third as u32, second as u32))?;
-//
-//         // Present the canvas on the window
-//         canvas.present();
-//
-//         // Sleep for 1/60th of a second to limit the frame rate
-//         // task::sleep(Duration::new(0, 1_000_000_000u32 / 60)).await;
-//     }
-// }
 
 /// Put #[derive(Debug)] into struct if devkit feature is enabled
 #[cfg(feature = "devkit")]
@@ -298,6 +145,7 @@ debug_derive!(
         /// * Only use global variables when they are needed, since they can be a security risk.
         repository: Arc<RwLock<VMRepository>>,
 
+        #[cfg(feature = "green-threads")]
         /// Task handlers to await if the program ends too quickly.
         pub task_handlers: Vec<JoinHandle<Result<(), String>>>,
 
@@ -319,6 +167,7 @@ impl VMStarter {
             stack: VMStack::new(),
             heap: Arc::new(RwLock::from(VMHeap::new(heap_size))),
             repository: Arc::new(RwLock::from(VMRepository::new(repository_size))),
+            #[cfg(feature = "green-threads")]
             task_handlers: Vec::new(),
             thread_handlers: Vec::new(),
         }
@@ -632,98 +481,109 @@ impl VMStarter {
             0x18 => {
                 dev_print!("[ NTW ]");
 
-                open_window2();
+                #[cfg(feature = "green-threads")]
+                task::block_on(open_window());
             }
             NTASK => {
-                // ***WIP***
-                async fn create_new_task(
-                    heap: Arc<RwLock<VMHeap>>,
-                    repo: Arc<RwLock<VMRepository>>,
-                    threadnum: usize,
-                ) -> Result<(), String> {
-                    let instructions = vec![
-                        0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
-                        0x0A, 0x0A, 0x01, 0x14, 0x01, 0,
-                    ];
 
-                    let data = vec![
-                        Integer(1),
-                        Integer(1),
-                        Null,
-                        Null,
-                        Integer(1),
-                        Integer(1),
-                        Null,
-                        Null,
-                        Integer(1),
-                        Integer(1),
-                        Null,
-                        Null,
-                        Integer(1),
-                        Integer(1),
-                        Null,
-                        Null,
-                        Null,
-                        Null,
-                    ];
-
-                    let mut thread = VMThread::new(instructions, data, &heap, &repo);
-
-                    let mut error: Option<String> = None;
-
-                    while thread.running {
-                        #[cfg(feature = "devkit")]
-                        dev_print!("Task Instructions: {:X?}", thread.instructions);
-
-                        while thread.pc < thread.instructions.len() {
-                            let instruction = thread.instructions[thread.pc];
-                            thread.data = thread.data_vault[thread.pc].clone();
-                            thread.instruction = instruction;
-                            thread.pc += 1;
-                            match thread.instructor(instruction) {
-                                Ok(_) => {
-                                    #[cfg(feature = "devkit")]
-                                    dev_print!("Task {} is working!", threadnum);
-                                }
-                                Err(err) => {
-                                    let task_err = format!("Task {threadnum} error: {err}");
-                                    error = Some(task_err);
-                                    thread.running = false;
-                                }
-                            };
-                            #[cfg(feature = "devkit")]
-                            dev_print!("Task {} PC: {}", threadnum, thread.pc);
-                            // println!("Length: {}", self.heap.heap_memory.len());
-                        }
-
-                        if thread.pc > thread.instructions.len() {
-                            panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
-                        }
-
-                        thread.pc += 1;
-                    }
-
-                    if let Some(err) = error {
-                        Err(err)
-                    } else {
-                        #[cfg(feature = "devkit")]
-                        dev_print!("\x1B[42mTask {threadnum} ended successfully\x1B[0m");
-
-                        Ok(())
-                    }
+                #[cfg(not(feature = "green-threads"))]
+                if true {
+                    println!("'green-threads' feature not activated!");
+                    process::exit(FEATURE_ERR);
                 }
 
-                let heap = Arc::clone(&self.heap);
-                let repo = Arc::clone(&self.repository);
+                #[cfg(feature = "green-threads")]
+                if true {
+                // ***WIP***
+                    async fn create_new_task(
+                        heap: Arc<RwLock<VMHeap>>,
+                        repo: Arc<RwLock<VMRepository>>,
+                        threadnum: usize,
+                    ) -> Result<(), String> {
+                        let instructions = vec![
+                            0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
+                            0x0A, 0x0A, 0x01, 0x14, 0x01, 0,
+                        ];
 
-                let threadnum = self.task_handlers.len();
+                        let data = vec![
+                            Integer(1),
+                            Integer(1),
+                            Null,
+                            Null,
+                            Integer(1),
+                            Integer(1),
+                            Null,
+                            Null,
+                            Integer(1),
+                            Integer(1),
+                            Null,
+                            Null,
+                            Integer(1),
+                            Integer(1),
+                            Null,
+                            Null,
+                            Null,
+                            Null,
+                        ];
 
-                let handle = task::spawn(create_new_task(heap, repo, threadnum));
+                        let mut thread = VMThread::new(instructions, data, &heap, &repo);
 
-                // println!("Data: {:?}", self.data);
-                if let Boolean(bool) = self.data {
-                    if bool {
-                        self.task_handlers.push(handle);
+                        let mut error: Option<String> = None;
+
+                        while thread.running {
+                            #[cfg(feature = "devkit")]
+                            dev_print!("Task Instructions: {:X?}", thread.instructions);
+
+                            while thread.pc < thread.instructions.len() {
+                                let instruction = thread.instructions[thread.pc];
+                                thread.data = thread.data_vault[thread.pc].clone();
+                                thread.instruction = instruction;
+                                thread.pc += 1;
+                                match thread.instructor(instruction) {
+                                    Ok(_) => {
+                                        #[cfg(feature = "devkit")]
+                                        dev_print!("Task {} is working!", threadnum);
+                                    }
+                                    Err(err) => {
+                                        let task_err = format!("Task {threadnum} error: {err}");
+                                        error = Some(task_err);
+                                        thread.running = false;
+                                    }
+                                };
+                                #[cfg(feature = "devkit")]
+                                dev_print!("Task {} PC: {}", threadnum, thread.pc);
+                                // println!("Length: {}", self.heap.heap_memory.len());
+                            }
+
+                            if thread.pc > thread.instructions.len() {
+                                panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
+                            }
+
+                            thread.pc += 1;
+                        }
+
+                        if let Some(err) = error {
+                            Err(err)
+                        } else {
+                            #[cfg(feature = "devkit")]
+                            dev_print!("\x1B[42mTask {threadnum} ended successfully\x1B[0m");
+
+                            Ok(())
+                        }
+                    }
+
+                    let heap = Arc::clone(&self.heap);
+                    let repo = Arc::clone(&self.repository);
+
+                    let threadnum = self.task_handlers.len();
+
+                    let handle = task::spawn(create_new_task(heap, repo, threadnum));
+
+                    // println!("Data: {:?}", self.data);
+                    if let Boolean(bool) = self.data {
+                        if bool {
+                            self.task_handlers.push(handle);
+                        }
                     }
                 }
             }
