@@ -18,6 +18,10 @@ pub mod stack;
 /// ## Threads implementation
 pub mod vm_threads;
 
+pub mod windowing;
+
+pub use windowing::*;
+
 pub use repository::*;
 
 pub use heap::*;
