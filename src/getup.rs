@@ -1,6 +1,7 @@
 use crate::errdef::UPDATE_CHECK_ERR;
 use std::process;
 
+#[cfg(feature = "check-update")]
 /// Gets update and returns Vector containing all strings necessary for displaying
 /// new versions, return all necessary information.
 #[cfg(not(test))]
@@ -193,6 +194,7 @@ pub fn get_update() -> Vec<String> {
     mainvec
 }
 
+#[cfg(feature = "check-update")]
 /// Gets update and returns Vector containing all strings necessary for displaying
 /// new versions, return all necessary information.
 #[cfg(test)]
