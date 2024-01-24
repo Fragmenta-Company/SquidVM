@@ -10,7 +10,15 @@ documentation = "https://squidvmdocs.fragmenta.org"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-devkit = []
+devkit = ["all"]
+all = ["sdl2", "wgpu", "winit", "green-threads", "check-update"]
+sdl2 = ["dep:sdl2"]
+sdl2-static = ["sdl2/bundled", "sdl2"]
+power_windowing = ["winit", "wgpu"]
+winit = ["dep:winit"]
+wgpu = ["dep:wgpu-hal"]
+green-threads = ["dep:async-std"]
+check-update = ["dep:minreq"]
 
 [profile.release]
 strip = "symbols"
@@ -24,14 +32,11 @@ arrayvec = { version = "0.7", features = [] }
 fnv = { version = "1", features = [] }
 clap = { version = "4", features = ["derive"] }
 zip = "0.6"
-minreq = { version = "2.11.0", features = ["json-using-serde", "https"] }
-serde_json = "1.0.108"
-async-std = "1.12.0"
-futures = { version = "0.3.29", features = [] }
-rand = "0.8.5"
-winit = { version = "0.29" }
-relm4 = { version = "0.7.0-beta.2", features = ["relm4-macros"] }
-relm4-macros = { version = "0.7.0-beta.2" }
-relm4-icons = { version = "0.7.0-alpha.2" }
-relm4-components = { version = "0.7.0-alpha.2", features = ["web"] }
-gtk = { package = "gtk4", version = "0.7" }
+minreq = { version = "2.11", features = ["json-using-serde", "https"], optional = true }
+serde_json = "1.0"
+async-std = { version = "1.12", optional = true }
+futures = { version = "0.3" }
+rand = "0.8"
+winit = { version = "0.29", optional = true }
+wgpu-hal = { version = "0.19", features = ["vulkan"], optional = true }
+sdl2 = { version = "0.36", features = ["bundled"], optional = true }
