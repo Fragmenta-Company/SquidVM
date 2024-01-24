@@ -19,6 +19,7 @@ winit = ["dep:winit"]
 wgpu = ["dep:wgpu-hal"]
 green-threads = ["dep:async-std"]
 check-update = ["dep:minreq"]
+bundle = []
 
 [profile.release]
 strip = "symbols"
