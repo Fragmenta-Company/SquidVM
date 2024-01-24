@@ -4,7 +4,10 @@ use crate::vm_internals::immediates::Immediates::{
 };
 use crate::vm_internals::{open_window, print_any};
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
+
+#[cfg(feature = "green-threads")]
 use async_std::task;
+#[cfg(feature = "green-threads")]
 use async_std::task::JoinHandle;
 use std::sync::{Arc, RwLock};
 
@@ -23,6 +26,7 @@ debug_derive!(
         pub heap: &'a Arc<RwLock<VMHeap>>,
         /// Repository is borrowed
         pub repository: &'a Arc<RwLock<VMRepository>>,
+        #[cfg(feature = "green-threads")]
         pub task_handlers: Vec<JoinHandle<Result<(), String>>>,
     }
 );
@@ -44,6 +48,7 @@ impl VMThread<'_> {
             stack: VMStack::new(),
             heap,
             repository: repo,
+            #[cfg(feature = "green-threads")]
             task_handlers: Vec::new(),
         }
     }
@@ -581,13 +586,18 @@ impl VMThread<'_> {
             0x18 => {
                 dev_print!("[ NTW ]");
 
+                #[cfg(feature = "green-threads")]
                 unsafe {
                     match task::block_on(open_window()) {
                         Ok(_) => Ok(()),
                         Err(err) => Err(err),
                     }
                 }
+
+                #[cfg(not(feature = "green-threads"))]
+                Err("Green-threads not activated!".to_string())
             }
+            #[cfg(feature = "green-threads")]
             NTASK => {
                 // ***WIP***
                 async fn create_new_task(
