@@ -1,3 +1,4 @@
+use crate::errdef::*;
 use crate::instructiondefs::*;
 use crate::sqd_reader::sqdbin_reader::FileReader;
 use crate::vm_internals::immediates::Immediates::{
@@ -5,7 +6,6 @@ use crate::vm_internals::immediates::Immediates::{
 };
 use crate::vm_internals::vm_threads::VMThread;
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
-use crate::errdef::*;
 
 #[cfg(feature = "green-threads")]
 use async_std::task;
@@ -13,9 +13,9 @@ use async_std::task;
 #[cfg(feature = "green-threads")]
 use async_std::task::JoinHandle;
 
+use std::fmt::Debug;
 use std::sync::{Arc, RwLock};
 use std::{process, thread};
-use std::fmt::Debug;
 
 /// Handles errors while pop from the stack
 fn handle_stack_err(result: Result<Immediates, String>) -> Immediates {
@@ -74,9 +74,6 @@ pub fn print_any(printable: Immediates) {
 
 /// Open new window ***WIP***
 pub async fn open_window() -> Result<(), String> {
-
-
-
     Ok(())
 }
 
@@ -485,7 +482,6 @@ impl VMStarter {
                 task::block_on(open_window());
             }
             NTASK => {
-
                 #[cfg(not(feature = "green-threads"))]
                 {
                     println!("'green-threads' feature not activated!");
@@ -494,7 +490,7 @@ impl VMStarter {
 
                 #[cfg(feature = "green-threads")]
                 {
-                // ***WIP***
+                    // ***WIP***
                     async fn create_new_task(
                         heap: Arc<RwLock<VMHeap>>,
                         repo: Arc<RwLock<VMRepository>>,
