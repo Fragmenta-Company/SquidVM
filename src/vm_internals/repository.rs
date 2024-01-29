@@ -1,3 +1,7 @@
+#[cfg(not(feature = "fnv_algorithm"))]
+use std::collections::HashMap;
+
+#[cfg(feature = "fnv_algorithm")]
 use fnv::FnvHashMap;
 
 debug_derive!(
@@ -5,8 +9,13 @@ debug_derive!(
     ///
     /// Used mostly for global variables.
     pub struct VMRepository {
-        /// Contains pointers to the heap
+        /// Contains pointers to the heap (FNV algorithm)
+        #[cfg(feature = "fnv_algorithm")]
         pub repo_var_pointers: FnvHashMap<usize, usize>,
+
+        /// Contains pointers to the heap (Default algorithm)
+        #[cfg(not(feature = "fnv_algorithm"))]
+        pub repo_var_pointers: HashMap<usize, usize>,
 
         /// Contains the repository's capacity
         pub repo_capacity: usize,
@@ -17,10 +26,13 @@ impl VMRepository {
     /// Instantiates the VMRepository struct and returns it.
     pub fn new(repo_capacity: usize) -> Self {
         VMRepository {
+            #[cfg(feature = "fnv_algorithm")]
             repo_var_pointers: FnvHashMap::with_capacity_and_hasher(
                 repo_capacity,
                 Default::default(),
             ),
+            #[cfg(not(feature = "fnv_algorithm"))]
+            repo_var_pointers: HashMap::with_capacity_and_hasher(repo_capacity, Default::default()),
             repo_capacity,
         }
     }
