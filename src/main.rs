@@ -57,7 +57,7 @@ use argsdef::*;
 
 #[cfg(feature = "green-threads")]
 use async_std::task;
-
+#[cfg(feature = "default")]
 use clap::Parser;
 use errdef::*;
 use sqd_reader::sqdbin_reader::FileReader;
@@ -65,11 +65,10 @@ use std::process;
 use targetdef::*;
 use vm_internals::VMStarter;
 
-
+#[cfg(feature = "default")]
 /// Contains tools for checking updates, getting current version and others.
 #[cfg(not(test))]
 fn version_args(args: &Args) {
-
     #[cfg(feature = "check-update")]
     if args.check_updates {
         println!("Current version: {}", env!("CARGO_PKG_VERSION"));
@@ -83,9 +82,8 @@ fn version_args(args: &Args) {
 
     #[cfg(not(feature = "check-update"))]
     if args.check_updates {
-        
         eprintln!("'check-update' Feature not enabled!");
-        
+
         process::exit(FEATURE_ERR);
     }
 
@@ -102,11 +100,19 @@ fn version_args(args: &Args) {
     }
 }
 
+#[cfg(not(feature = "default"))]
+fn main() {
+    dev_print!("Exiting...");
+}
+
+#[cfg(feature = "default")]
 /// Get arguments from the command and creates a VMStarter object.
 /// Run vm.interpreter in loop while vm is running.
 /// File is read and converted to VM readble objects before the interpreter starts.
 #[cfg(not(test))]
 fn main() {
+    #[cfg(feature = "bundle")]
+    crate::sqd_reader::sar_reader::archivereader::ArchiveReader::new();
 
     let mut fileread: Option<FileReader> = None;
     let mut bin: Option<String> = None;
@@ -117,9 +123,7 @@ fn main() {
     version_args(&args);
 
     let maxmem = match string_to_bytesize(args.maxmem) {
-        Ok(mem) => {
-            mem
-        }
+        Ok(mem) => mem,
         Err(err) => {
             eprintln!("\x1B[31m{}\x1b[0m", err);
             process::exit(MAXMEM_CONVERSION_ERR);

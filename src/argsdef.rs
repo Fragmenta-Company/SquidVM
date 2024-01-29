@@ -1,5 +1,7 @@
+#[cfg(feature = "default")]
 use clap::Parser;
 
+#[cfg(feature = "default")]
 /// Argument Parser
 #[derive(Parser, Debug)]
 #[command(author, about, long_about = None)]
@@ -43,6 +45,7 @@ pub struct Args {
     pub check_updates: bool,
 }
 
+#[cfg(feature = "default")]
 /// Converts strings with postfixes (GB, MB, KB or B) into a value in bytes
 pub fn string_to_bytesize(string: String) -> Result<usize, &'static str> {
     // dev_print!("Before pop: {}", string);
