@@ -132,7 +132,7 @@ debug_derive!(
         /// Normally used for dynamic programs that make use of
         /// mutable variables or other objects that can change and/or need to be
         /// stored for a longer time than in the stack.
-        heap: Arc<RwLock<VMHeap>>,
+        // heap: Arc<RwLock<VMHeap>>,
 
         /// It's used to store pointer for heap values, so it can be used as a global variable storage.
         ///
@@ -162,7 +162,7 @@ impl VMStarter {
             data: Null,
             data_vault: Vec::new(),
             stack: VMStack::new(),
-            heap: Arc::new(RwLock::from(VMHeap::new(heap_size))),
+            // heap: Arc::new(RwLock::from(VMHeap::new(heap_size))),
             repository: Arc::new(RwLock::from(VMRepository::new(repository_size))),
             #[cfg(feature = "green-threads")]
             task_handlers: Vec::new(),
@@ -492,7 +492,7 @@ impl VMStarter {
                 {
                     // ***WIP***
                     async fn create_new_task(
-                        heap: Arc<RwLock<VMHeap>>,
+                        // heap: Arc<RwLock<VMHeap>>,
                         repo: Arc<RwLock<VMRepository>>,
                         threadnum: usize,
                     ) -> Result<(), String> {
@@ -522,7 +522,7 @@ impl VMStarter {
                             Null,
                         ];
 
-                        let mut thread = VMThread::new(instructions, data, &heap, &repo);
+                        let mut thread = VMThread::new(instructions, data, &repo);
 
                         let mut error: Option<String> = None;
 
@@ -568,12 +568,12 @@ impl VMStarter {
                         }
                     }
 
-                    let heap = Arc::clone(&self.heap);
+                    // let heap = Arc::clone(&self.heap);
                     let repo = Arc::clone(&self.repository);
 
                     let threadnum = self.task_handlers.len();
 
-                    let handle = task::spawn(create_new_task(heap, repo, threadnum));
+                    let handle = task::spawn(create_new_task(repo, threadnum));
 
                     // println!("Data: {:?}", self.data);
                     if let Boolean(bool) = self.data {
@@ -586,7 +586,7 @@ impl VMStarter {
             NTHRD => {
                 // ***WIP***
                 fn create_new_thread(
-                    heap: Arc<RwLock<VMHeap>>,
+                    // heap: Arc<RwLock<VMHeap>>,
                     repo: Arc<RwLock<VMRepository>>,
                     threadnum: usize,
                 ) -> Result<(), String> {
@@ -620,7 +620,7 @@ impl VMStarter {
                         Null,
                     ];
 
-                    let mut thread = VMThread::new(instructions, data, &heap, &repo);
+                    let mut thread = VMThread::new(instructions, data, &repo);
 
                     let mut error: Option<String> = None;
 
@@ -666,12 +666,12 @@ impl VMStarter {
                     }
                 }
 
-                let heap = Arc::clone(&self.heap);
+                // let heap = Arc::clone(&self.heap);
                 let repo = Arc::clone(&self.repository);
 
                 let threadnum = self.thread_handlers.len();
 
-                let handle = thread::spawn(move || create_new_thread(heap, repo, threadnum));
+                let handle = thread::spawn(move || create_new_thread(repo, threadnum));
 
                 // println!("Data: {:?}", self.data);
                 if let Boolean(bool) = self.data {
