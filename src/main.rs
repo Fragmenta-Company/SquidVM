@@ -54,7 +54,9 @@ mod targetdef;
 mod tests;
 
 use argsdef::*;
+use std::mem::size_of_val;
 
+use crate::vm_internals::immediates::Immediates;
 #[cfg(feature = "green-threads")]
 use async_std::task;
 #[cfg(feature = "default")]
@@ -62,6 +64,7 @@ use clap::Parser;
 use errdef::*;
 use sqd_reader::sqdbin_reader::FileReader;
 use std::process;
+use std::sync::RwLock;
 use targetdef::*;
 use vm_internals::VMStarter;
 
@@ -105,12 +108,31 @@ fn main() {
     dev_print!("Exiting...");
 }
 
+fn test() {
+    use crate::vm_internals::heap::*;
+    use std::sync::Arc;
+
+    let mut heap = VMHeap::new(200);
+
+    let mut empty_heap = VMHeap::new_empty(200);
+
+    let idk2 = empty_heap.allocate_global_region();
+
+    let idk = heap.allocate_task_region();
+
+    println!("{idk}");
+    println!("{heap:?}");
+    println!("{idk2}");
+    println!("{empty_heap:?}");
+}
+
 #[cfg(feature = "default")]
 /// Get arguments from the command and creates a VMStarter object.
 /// Run vm.interpreter in loop while vm is running.
 /// File is read and converted to VM readble objects before the interpreter starts.
 #[cfg(not(test))]
 fn main() {
+    test();
     #[cfg(feature = "bundle")]
     crate::sqd_reader::sar_reader::archivereader::ArchiveReader::new();
 
