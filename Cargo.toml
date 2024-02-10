@@ -10,7 +10,7 @@ documentation = "https://squidvmdocs.fragmenta.org"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["dep:clap"]
+default = ["dep:clap", "ahash_algorithm"]
 devkit = ["all"]
 all = [
     "sdl2",
@@ -20,7 +20,7 @@ all = [
     "check-update",
     "sar", "logging",
     "random_generator",
-    "fnv_algorithm"
+    "ahash_algorithm"
 ]
 sdl2 = ["dep:sdl2"]
 sdl2-static = ["sdl2/bundled", "sdl2", "sdl2/static-link"]
@@ -33,7 +33,7 @@ json_parsing = ["dep:serde_json"]
 sar = ["dep:zip"]
 logging = ["dep:simple_logger", "dep:log"]
 random_generator = ["dep:rand"]
-fnv_algorithm = ["dep:fnv"]
+ahash_algorithm = ["dep:ahash"]
 bundle = ["sar"]
 
 [profile.release]
@@ -46,7 +46,7 @@ simple_logger = { version = "4.3", optional = true }
 log = { version = "0.4", optional = true }
 byteorder = { version = "1.5" }
 arrayvec = { version = "0.7", features = [] }
-fnv = { version = "1", features = [], optional = true }
+ahash = { version = "0.8", optional = true }
 clap = { version = "4", features = ["derive"], optional = true }
 zip = { version = "0.6", optional = true }
 minreq = { version = "2.11", features = ["json-using-serde", "https"], optional = true }
