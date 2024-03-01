@@ -19,8 +19,8 @@ debug_derive!(
         pub index: AHashMap<usize, usize>, // Region index
         pub free: usize,                   // In bytes
         pub capacity: usize,               // In bytes
-        pub threads: usize,
-        pub tasks: usize,
+        pub threads: usize,                // Number of threads active
+        pub tasks: usize,                  // Number of tasks active
     }
 );
 
@@ -227,7 +227,7 @@ impl AllocatedObject {
                 size += size_of::<u64>();
             }
 
-            if let Immediates::String(string) = immediate {
+            if let Immediates::MutStr(string) = immediate {
                 let string_size = string.len();
 
                 size -= 24;
