@@ -18,3 +18,5 @@ pub const HEAP_ALLOC_ERR: i32 = 2;
 pub const UPDATE_CHECK_ERR: i32 = 7;
 
 pub const FEATURE_ERR: i32 = 10;
+
+pub const PRINT_THREAD_ERR: i32 = 11;

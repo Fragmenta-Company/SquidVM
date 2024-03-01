@@ -2,7 +2,7 @@ use crate::errdef::*;
 use crate::instructiondefs::*;
 use crate::sqd_reader::sqdbin_reader::defs::*;
 use crate::vm_internals::immediates::Immediates::{
-    self, Boolean, Float, Integer, Null, String as TypeString, UInteger,
+    self, Boolean, Float, Integer, Null, MutStr, UInteger,
 };
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::fmt::Display;
@@ -106,7 +106,7 @@ fn get_data(data_type: u8, mut file: &File, mut buffer: [u8; 2]) -> (Immediates,
                 counter += 1;
             }
 
-            data = TypeString(to_string(byte_string));
+            data = MutStr(to_string(byte_string));
         }
         STRING16 => {
             // 16bit string type
@@ -120,7 +120,7 @@ fn get_data(data_type: u8, mut file: &File, mut buffer: [u8; 2]) -> (Immediates,
                 offset += 1;
                 counter += 1;
             }
-            data = TypeString(to_string(byte_string));
+            data = MutStr(to_string(byte_string));
         }
         STRING32 => {
             // 32bit string type
@@ -134,7 +134,7 @@ fn get_data(data_type: u8, mut file: &File, mut buffer: [u8; 2]) -> (Immediates,
                 offset += 1;
                 counter += 1;
             }
-            data = TypeString(to_string(byte_string));
+            data = MutStr(to_string(byte_string));
         }
         STRING64 => {
             // 64bit string type
@@ -148,7 +148,7 @@ fn get_data(data_type: u8, mut file: &File, mut buffer: [u8; 2]) -> (Immediates,
                 offset += 1;
                 counter += 1;
             }
-            data = TypeString(to_string(byte_string));
+            data = MutStr(to_string(byte_string));
         }
         STRING128 => {
             // 128bit string type
@@ -162,7 +162,7 @@ fn get_data(data_type: u8, mut file: &File, mut buffer: [u8; 2]) -> (Immediates,
                 offset += 1;
                 counter += 1;
             }
-            data = TypeString(to_string(byte_string));
+            data = MutStr(to_string(byte_string));
         }
         _ => {
             eprintln!("\x1B[31mInvalid file data!\x1b[0m");

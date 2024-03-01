@@ -1,4 +1,6 @@
+use std::fmt::{Display, Formatter};
 use std::mem;
+use std::sync::Arc;
 
 /// ## Immediates are the objects types containing the value inside them
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
@@ -13,14 +15,48 @@ pub enum Immediates {
     UInteger(u64),
     /// Float (f64) type
     Float(f64),
-    /// String type
-    String(String),
+    /// Static String type
+    StaticStr(Arc<str>),
+    /// Mutable String type
+    MutStr(String),
     /// Binary (`Vec<u8>`) type
     Binary(Vec<u8>),
     /// Array of Immediates type
     Array(Vec<Immediates>),
-    /// Pointer/reference to a address or object in the heap
-    RefPtr(usize),
+}
+
+impl Display for Immediates {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Immediates::Null => {
+                write!(f, "Null")
+            }
+            Immediates::Boolean(bool) => {
+                write!(f, "{}", bool.to_string())
+            }
+            Immediates::Integer(i) => {
+                write!(f, "{}", i.to_string())
+            }
+            Immediates::UInteger(ui) => {
+                write!(f, "{}", ui.to_string())
+            }
+            Immediates::Float(fl) => {
+                write!(f, "{}", fl.to_string())
+            }
+            Immediates::StaticStr(s) => {
+                write!(f, "{}", s)
+            }
+            Immediates::MutStr(s) => {
+                write!(f, "{}", s)
+            }
+            Immediates::Binary(b) => {
+                write!(f, "{:?}", b)
+            }
+            Immediates::Array(arr) => {
+                write!(f, "{:?}", arr)
+            }
+        }
+    }
 }
 
 /// ## ImmediatesType are the objects types NOT containing the value inside them, just the type.
@@ -36,8 +72,10 @@ pub enum ImmediatesType {
     UInteger,
     /// Float (f64) type
     Float,
+    /// Static String type
+    StaticStr,
     /// String type
-    String,
+    MutStr,
     /// Binary (`Vec<u8>`) type
     Binary,
     /// Array of Immediates type
@@ -68,10 +106,10 @@ impl ImmediateType for Immediates {
             Immediates::Integer(_) => ImmediatesType::Integer,
             Immediates::UInteger(_) => ImmediatesType::UInteger,
             Immediates::Float(_) => ImmediatesType::Float,
-            Immediates::String(_) => ImmediatesType::String,
+            Immediates::StaticStr(_) => ImmediatesType::StaticStr,
+            Immediates::MutStr(_) => ImmediatesType::MutStr,
             Immediates::Binary(_) => ImmediatesType::Binary,
             Immediates::Array(_) => ImmediatesType::Array,
-            Immediates::RefPtr(_) => ImmediatesType::RefPtr,
         }
     }
 }
@@ -105,15 +143,11 @@ impl Serialize for Immediates {
                 bytes.copy_from_slice(&f.to_le_bytes());
                 bytes
             }
-            Immediates::String(string) => string.clone().into_bytes(),
+            Immediates::StaticStr(string) => string.to_string().into_bytes(),
+            Immediates::MutStr(string) => string.clone().into_bytes(),
             Immediates::Binary(bin) => bin.clone(),
             Immediates::Array(_) => {
                 panic!("Array not permited for instance");
-            }
-            Immediates::RefPtr(u) => {
-                let mut bytes = vec![0u8; mem::size_of::<Immediates>()];
-                bytes.copy_from_slice(&u.to_le_bytes());
-                bytes
             }
         }
     }
@@ -137,15 +171,11 @@ impl Serialize for Immediates {
                 bytes.copy_from_slice(&f.to_le_bytes());
                 bytes
             }
-            Immediates::String(string) => string.clone().into_bytes(),
+            Immediates::StaticStr(string) => string.to_string().into_bytes(),
+            Immediates::MutStr(string) => string.clone().into_bytes(),
             Immediates::Binary(bin) => bin.clone(),
             Immediates::Array(_) => {
                 panic!("Array not permitted for instance");
-            }
-            Immediates::RefPtr(u) => {
-                let mut bytes = vec![0u8; mem::size_of::<usize>()];
-                bytes.copy_from_slice(&u.to_le_bytes());
-                bytes
             }
         }
     }

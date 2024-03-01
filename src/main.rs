@@ -54,7 +54,9 @@ mod targetdef;
 mod tests;
 
 use argsdef::*;
+use std::mem::size_of_val;
 
+use crate::vm_internals::immediates::Immediates;
 #[cfg(feature = "green-threads")]
 use async_std::task;
 #[cfg(feature = "default")]
@@ -64,6 +66,7 @@ use sqd_reader::sqdbin_reader::FileReader;
 use std::process;
 use targetdef::*;
 use vm_internals::VMStarter;
+use crate::vm_internals::PrintMessage;
 
 #[cfg(feature = "default")]
 /// Contains tools for checking updates, getting current version and others.
@@ -104,6 +107,7 @@ fn version_args(args: &Args) {
 fn main() {
     dev_print!("Exiting...");
 }
+
 
 #[cfg(feature = "default")]
 /// Get arguments from the command and creates a VMStarter object.
@@ -148,7 +152,6 @@ fn main() {
     }
 
     let mut vm = VMStarter::new(maxmem, args.repo_size);
-    // dev_print!("{:?}", vm);
 
     if let Some(fileread) = fileread {
         while vm.running {
@@ -180,6 +183,9 @@ fn main() {
             };
         }
     }
+    
+    vm.print_sender.send(PrintMessage::End).unwrap();
+    vm.print_handler.join().unwrap();
 
     dev_print!("Exiting...");
 }

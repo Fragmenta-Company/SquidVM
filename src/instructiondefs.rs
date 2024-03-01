@@ -40,7 +40,7 @@ pub const JMPFD: u8 = 0x0C;
 /// Jumps from stack.
 pub const JMPFS: u8 = 0x0D;
 
-/// Prints from stack.
+/// Pops and prints from stack.
 pub const PRTFS: u8 = 0x0E;
 
 /// Prints from data.
@@ -55,12 +55,6 @@ pub const F_EXP: u8 = 0x11;
 /// Take one float and one integer from the stack and perform exponentiation.
 pub const F_I_EXP: u8 = 0x12;
 
-/// Print anything from data.
-pub const PRTAFD: u8 = 0x13;
-
-/// Print anything from stack.
-pub const PRTAFS: u8 = 0x14;
-
 /// Add variable pointer.
 pub const AVP: u8 = 0x15;
 
@@ -74,4 +68,11 @@ pub const D_VFS: u8 = 0x17;
 pub const NTASK: u8 = 0x19;
 
 /// Creates new thread.
-pub const NTHRD: u8 = 0x20;
+pub const NTHRD: u8 = 0x1A;
+
+/// Panics the current thread
+pub const PANIC: u8 = 0x1B;
+
+pub const PEEK: u8 = 0x1C;
+
+pub const SWAP: u8 = 0x1D;

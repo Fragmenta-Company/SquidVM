@@ -1,8 +1,8 @@
 use crate::instructiondefs::*;
 use crate::vm_internals::immediates::Immediates::{
-    self, Array, Binary, Boolean, Float, Integer, Null, RefPtr, String as TypeString, UInteger,
+    self, Array, Binary, Boolean, Float, Integer, Null, MutStr as TypeString, UInteger,
 };
-use crate::vm_internals::{open_window, print_any};
+use crate::vm_internals::{open_window};
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
 
 #[cfg(feature = "green-threads")]
@@ -23,7 +23,7 @@ debug_derive!(
         pub data_vault: Vec<Immediates>,
         pub stack: VMStack,
         /// Heap is borrowed
-        pub heap: &'a Arc<RwLock<VMHeap>>,
+        // pub heap: &'a Arc<RwLock<VMHeap>>,
         /// Repository is borrowed
         pub repository: &'a Arc<RwLock<VMRepository>>,
         #[cfg(feature = "green-threads")]
@@ -35,7 +35,7 @@ impl VMThread<'_> {
     pub fn new<'a>(
         instructions: Vec<u8>,
         data_vault: Vec<Immediates>,
-        heap: &'a Arc<RwLock<VMHeap>>,
+        // heap: &'a Arc<RwLock<VMHeap>>,
         repo: &'a Arc<RwLock<VMRepository>>,
     ) -> VMThread<'a> {
         VMThread {
@@ -46,7 +46,7 @@ impl VMThread<'_> {
             data: Null,
             data_vault,
             stack: VMStack::new(),
-            heap,
+            // heap,
             repository: repo,
             #[cfg(feature = "green-threads")]
             task_handlers: Vec::new(),
@@ -395,22 +395,16 @@ impl VMThread<'_> {
                     }
                 };
 
-                if let TypeString(s) = value {
-                    print!("{s}");
-                    Ok(())
-                } else {
-                    Err("[ NO STRING ]".to_string())
-                }
+                print!("{}", value);
+                
+                Ok(())
             }
             PRTFD => {
                 dev_print!("[ PRTFD ]");
 
-                if let TypeString(s) = self.data.clone() {
-                    print!("{s}");
-                    Ok(())
-                } else {
-                    Err("[ NO STRING ]".to_string())
-                }
+                print!("{}", &self.data);
+                
+                Ok(())
             }
             I_EXP => {
                 dev_print!("[ iExp ]");
@@ -496,25 +490,6 @@ impl VMThread<'_> {
                     Err("[ NO FLOATS ]".to_string())
                 }
             }
-            PRTAFD => {
-                dev_print!("[ PRTAFD ]");
-
-                print_any(self.data.clone());
-                Ok(())
-            }
-            PRTAFS => {
-                dev_print!("[ PRTAFS ]");
-
-                let value = match self.stack.pop() {
-                    Ok(value) => value,
-                    Err(err) => {
-                        return Err(err);
-                    }
-                };
-
-                print_any(value);
-                Ok(())
-            }
             AVP => {
                 dev_print!("[ AVP ]");
 
@@ -598,104 +573,104 @@ impl VMThread<'_> {
                 Err("Green-threads not activated!".to_string())
             }
             #[cfg(feature = "green-threads")]
-            NTASK => {
-                // ***WIP***
-                async fn create_new_task(
-                    heap: Arc<RwLock<VMHeap>>,
-                    repo: Arc<RwLock<VMRepository>>,
-                    threadnum: usize,
-                ) -> Result<(), String> {
-                    let mut thread = VMThread {
-                        running: true,
-                        pc: 0,
-                        instruction: 0,
-                        instructions: vec![
-                            0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
-                            0x0A, 0x0A, 0x01, 0x14, 0,
-                        ],
-                        data: Null,
-                        data_vault: vec![
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Integer(1),
-                            Integer(1),
-                            Null,
-                            Null,
-                            Null,
-                        ],
-                        stack: VMStack::new(),
-                        heap: &heap,
-                        repository: &repo,
-                        task_handlers: Vec::new(),
-                    };
-
-                    let mut error: Option<String> = None;
-
-                    while thread.running {
-                        dev_print!("Thread Instructions: {:X?}", thread.instructions);
-
-                        while thread.pc < thread.instructions.len() {
-                            let instruction = thread.instructions[thread.pc];
-                            thread.data = thread.data_vault[thread.pc].clone();
-                            thread.instruction = instruction;
-                            thread.pc += 1;
-                            match thread.instructor(instruction) {
-                                Ok(_) => {
-                                    #[cfg(feature = "devkit")]
-                                    dev_print!("Thread {} is working!", threadnum);
-                                }
-                                Err(err) => {
-                                    error = Some(err);
-                                    thread.running = false;
-                                }
-                            };
-                            dev_print!("{}", thread.pc);
-                            // println!("Length: {}", self.heap.heap_memory.len());
-                        }
-
-                        if thread.pc > thread.instructions.len() {
-                            panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
-                        }
-
-                        thread.pc += 1;
-                    }
-
-                    if let Some(err) = error {
-                        Err(err)
-                    } else {
-                        Ok(())
-                    }
-                }
-
-                let heap = Arc::clone(&self.heap);
-                let repo = Arc::clone(&self.repository);
-
-                #[cfg(feature = "devkit")]
-                let threadnum = self.task_handlers.len();
-
-                #[cfg(not(feature = "devkit"))]
-                let threadnum = 0usize;
-
-                let handle = task::spawn(create_new_task(heap, repo, threadnum));
-
-                // println!("Data: {:?}", self.data);
-                if let Boolean(bool) = self.data {
-                    if bool {
-                        self.task_handlers.push(handle);
-                    }
-                }
-                Ok(())
-            }
+            // NTASK => {
+            //     // ***WIP***
+            //     async fn create_new_task(
+            //         heap: Arc<RwLock<VMHeap>>,
+            //         repo: Arc<RwLock<VMRepository>>,
+            //         threadnum: usize,
+            //     ) -> Result<(), String> {
+            //         let mut thread = VMThread {
+            //             running: true,
+            //             pc: 0,
+            //             instruction: 0,
+            //             instructions: vec![
+            //                 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
+            //                 0x0A, 0x0A, 0x01, 0x14, 0,
+            //             ],
+            //             data: Null,
+            //             data_vault: vec![
+            //                 Integer(1),
+            //                 Integer(1),
+            //                 Null,
+            //                 Null,
+            //                 Integer(1),
+            //                 Integer(1),
+            //                 Null,
+            //                 Null,
+            //                 Integer(1),
+            //                 Integer(1),
+            //                 Null,
+            //                 Null,
+            //                 Integer(1),
+            //                 Integer(1),
+            //                 Null,
+            //                 Null,
+            //                 Null,
+            //             ],
+            //             stack: VMStack::new(),
+            //             heap: &heap,
+            //             repository: &repo,
+            //             task_handlers: Vec::new(),
+            //         };
+            //
+            //         let mut error: Option<String> = None;
+            //
+            //         while thread.running {
+            //             dev_print!("Thread Instructions: {:X?}", thread.instructions);
+            //
+            //             while thread.pc < thread.instructions.len() {
+            //                 let instruction = thread.instructions[thread.pc];
+            //                 thread.data = thread.data_vault[thread.pc].clone();
+            //                 thread.instruction = instruction;
+            //                 thread.pc += 1;
+            //                 match thread.instructor(instruction) {
+            //                     Ok(_) => {
+            //                         #[cfg(feature = "devkit")]
+            //                         dev_print!("Thread {} is working!", threadnum);
+            //                     }
+            //                     Err(err) => {
+            //                         error = Some(err);
+            //                         thread.running = false;
+            //                     }
+            //                 };
+            //                 dev_print!("{}", thread.pc);
+            //                 // println!("Length: {}", self.heap.heap_memory.len());
+            //             }
+            //
+            //             if thread.pc > thread.instructions.len() {
+            //                 panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
+            //             }
+            //
+            //             thread.pc += 1;
+            //         }
+            //
+            //         if let Some(err) = error {
+            //             Err(err)
+            //         } else {
+            //             Ok(())
+            //         }
+            //     }
+            //
+            //     let heap = Arc::clone(&self.heap);
+            //     let repo = Arc::clone(&self.repository);
+            //
+            //     #[cfg(feature = "devkit")]
+            //     let threadnum = self.task_handlers.len();
+            //
+            //     #[cfg(not(feature = "devkit"))]
+            //     let threadnum = 0usize;
+            //
+            //     let handle = task::spawn(create_new_task(heap, repo, threadnum));
+            //
+            //     // println!("Data: {:?}", self.data);
+            //     if let Boolean(bool) = self.data {
+            //         if bool {
+            //             self.task_handlers.push(handle);
+            //         }
+            //     }
+            //     Ok(())
+            // }
             NTHRD => Err("Threads cannot be created inside other tasks/threads!".to_string()),
             _ => Err("[ UNKNOWN INSTRUCTION ]".to_string()),
         }

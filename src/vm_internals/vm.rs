@@ -1,9 +1,7 @@
 use crate::errdef::*;
 use crate::instructiondefs::*;
 use crate::sqd_reader::sqdbin_reader::FileReader;
-use crate::vm_internals::immediates::Immediates::{
-    self, Array, Binary, Boolean, Float, Integer, Null, RefPtr, String as TypeString, UInteger,
-};
+use crate::vm_internals::immediates::Immediates::{self, Array, Binary, Boolean, Float, Integer, Null, MutStr, UInteger, StaticStr};
 use crate::vm_internals::vm_threads::VMThread;
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
 
@@ -13,9 +11,10 @@ use async_std::task;
 #[cfg(feature = "green-threads")]
 use async_std::task::JoinHandle;
 
-use std::fmt::Debug;
-use std::sync::{Arc, RwLock};
+use std::fmt::{Debug, Display};
+use std::sync::{Arc, mpsc, RwLock};
 use std::{process, thread};
+use std::sync::mpsc::{Sender};
 
 /// Handles errors while pop from the stack
 fn handle_stack_err(result: Result<Immediates, String>) -> Immediates {
@@ -36,39 +35,6 @@ fn handle_stack_push_err(result: Result<(), String>) {
             process::exit(12);
         }
         _ => {}
-    }
-}
-
-/// Print any type, even pointers
-pub fn print_any(printable: Immediates) {
-    match printable {
-        Null => {
-            print!("Null");
-        }
-        Boolean(b) => {
-            print!("{}", b);
-        }
-        UInteger(ui) => {
-            print!("{}", ui);
-        }
-        Integer(i) => {
-            print!("{}", i);
-        }
-        Float(f) => {
-            print!("{}", f);
-        }
-        TypeString(s) => {
-            print!("{}", s);
-        }
-        Binary(bin) => {
-            print!("{:?}", bin);
-        }
-        Array(arr) => {
-            print!("{:?}", arr)
-        }
-        RefPtr(u) => {
-            print!("{u:x}");
-        }
     }
 }
 
@@ -116,7 +82,7 @@ debug_derive!(
         instructions: Vec<u8>,
 
         /// Contains the data being used at the moment.
-        /// In the interpreter function it's changed frequently by the _program counter_.
+        /// The interpreter changes this frequently by using the _program counter_.
         data: Immediates,
 
         /// Contains all the data the VM will use to run the program.
@@ -128,18 +94,22 @@ debug_derive!(
         /// Normally used for function frames and to store function locals.
         stack: VMStack,
 
+        return_stack: VMStack,
+
+        function_stack: Vec<VMStack>,
+
         /// Contains all objects used by the program.
         /// Normally used for dynamic programs that make use of
         /// mutable variables or other objects that can change and/or need to be
         /// stored for a longer time than in the stack.
-        heap: Arc<RwLock<VMHeap>>,
+        // heap: Arc<RwLock<VMHeap>>,
 
-        /// It's used to store pointer for heap values, so it can be used as a global variable storage.
+        /// It's used to store pointers for heap values, so it can be used as a global variable storage.
         ///
         /// <p style="color: #FF6E6E;">Warning:</p>
         ///
-        /// * All objects used by the repository will **ignored** by the garbage collcetor.
-        /// * Only use global variables when they are needed, since they can be a security risk.
+        /// * All objects used by the repository will be **ignored** by the garbage collcetor.
+        /// * Only use global variables when they are needed, since they can be a security risk if misused.
         repository: Arc<RwLock<VMRepository>>,
 
         #[cfg(feature = "green-threads")]
@@ -148,12 +118,124 @@ debug_derive!(
 
         /// Thread handlers to join if the program ends too quickly.
         pub thread_handlers: Vec<thread::JoinHandle<Result<(), String>>>,
+
+        pub print_handler: thread::JoinHandle<()>,
+
+        pub print_sender: Sender<PrintMessage>,
+
+        data_register: Immediates
     }
 );
+
+pub enum PrintMessage {
+    Error(Arc<str>),
+    Warn(Arc<str>),
+    Trace(Arc<str>),
+    Print(Arc<str>),
+    PrintLine(Arc<str>),
+    DevPrint(Arc<str>),
+    End
+}
+
+pub fn print<T: Display>(print_sender: &Sender<PrintMessage>, message: T) {
+    match print_sender.send(PrintMessage::Print(message.to_string().into())) {
+        Err(err) => {
+            eprintln!("{err}");
+            println!("Message: {message}")
+        }
+        _ => {}
+    }
+}
+
+pub fn println<T: Display>(print_sender: &Sender<PrintMessage>, message: T) {
+    match print_sender.send(PrintMessage::PrintLine(message.to_string().into())) {
+        Err(err) => {
+            eprintln!("{err}");
+            println!("Message: {message}")
+        }
+        _ => {}
+    }
+}
+
+pub fn warn<T: Display>(print_sender: &Sender<PrintMessage>, message: T) {
+    match print_sender.send(PrintMessage::Warn(message.to_string().into())) {
+        Err(err) => {
+            eprintln!("{err}");
+            println!("Message: {message}")
+        }
+        _ => {}
+    }
+}
+
+pub fn error<T: Display>(print_sender: &Sender<PrintMessage>, message: T) {
+    match print_sender.send(PrintMessage::Error(message.to_string().into())) {
+        Err(err) => {
+            eprintln!("{err}");
+            println!("Message: {message}")
+        }
+        _ => {}
+    }
+}
+
+pub fn trace<T: Display>(print_sender: &Sender<PrintMessage>, message: T) {
+    match print_sender.send(PrintMessage::Trace(message.to_string().into())) {
+        Err(err) => {
+            eprintln!("{err}");
+            println!("Message: {message}")
+        }
+        _ => {}
+    }
+}
 
 impl VMStarter {
     /// Instantiates the VMStarter struct. Very straight forward.
     pub fn new(heap_size: usize, repository_size: usize) -> VMStarter {
+
+        let (print_sender, print_receiver) = mpsc::channel::<PrintMessage>();
+
+        let print_handler = thread::spawn(move || {
+
+            match simple_logger::init() {
+                Err(err) => {
+                    eprintln!("Error when initializing print thread: {err}");
+                    process::exit(PRINT_THREAD_ERR);
+                }
+                _ => {}
+            };
+
+            loop {
+
+                if let Ok(msg) = print_receiver.recv() {
+                    match msg {
+                        PrintMessage::Error(err) => {
+                            log::error!("{}", err);
+                        }
+                        PrintMessage::Warn(warn) => {
+                            log::warn!("{}", warn);
+                        }
+                        PrintMessage::Trace(trace) => {
+                            log::trace!("{}", trace);
+                        }
+                        PrintMessage::Print(str) => {
+                            print!("{}", str);
+                        }
+                        PrintMessage::PrintLine(str) => {
+                            println!("{}", str);
+                        }
+                        PrintMessage::DevPrint(dev) => {
+                            dev_print!("{}", dev);
+                        }
+                        PrintMessage::End => {
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+
+        });
+
         VMStarter {
             running: true,
             pc: 0x00,
@@ -162,17 +244,22 @@ impl VMStarter {
             data: Null,
             data_vault: Vec::new(),
             stack: VMStack::new(),
-            heap: Arc::new(RwLock::from(VMHeap::new(heap_size))),
+            return_stack: VMStack::new(),
+            function_stack: Vec::new(),
+            // heap: Arc::new(RwLock::from(VMHeap::new(heap_size))),
             repository: Arc::new(RwLock::from(VMRepository::new(repository_size))),
             #[cfg(feature = "green-threads")]
             task_handlers: Vec::new(),
             thread_handlers: Vec::new(),
+            print_handler,
+            print_sender,
+            data_register: Null,
         }
     }
 
     /// Gets a FileReader instance and uses it to run the instructor function.
     ///
-    /// It will run until the program counter is less than the instructions vector length.
+    /// It will run until the program counter is less than the instruction vector length.
     ///
     /// <p style="color: #FF6E6E;">Warning:</p>
     ///
@@ -184,20 +271,22 @@ impl VMStarter {
         self.instructions = file_reader.instructions;
         self.data_vault = file_reader.data;
 
-        dev_print!("Instructions: {:X?}", self.instructions);
+        sender_dev_print!(&self.print_sender, "Instructions: {:X?}", self.instructions);
 
-        while self.pc < self.instructions.len() {
+        while self.pc < self.instructions.len() && self.running {
             let instruction = self.instructions[self.pc];
             self.data = self.data_vault[self.pc].clone();
             self.instruction = instruction;
             self.pc += 1;
             self.instructor(instruction);
-            dev_print!("{}", self.pc);
+            // dev_print!("{}", self.pc);
+            sender_dev_print!(&self.print_sender, "{}", self.pc);
             // println!("Length: {}", self.heap.heap_memory.len());
         }
 
         if self.pc > self.instructions.len() {
-            panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
+            self.instructor(PANIC);
+            // panic!("[ PROGRAM COUNTER OUT OF RANGE ]");
         }
 
         self.pc += 1;
@@ -210,7 +299,8 @@ impl VMStarter {
     fn instructor(&mut self, instruction: u8) {
         match instruction {
             HALT => {
-                dev_print!("[ HALT ]");
+                sender_dev_print!(&self.print_sender, "[ HALT ]");
+                // dev_print!("[ HALT ]");
                 self.running = false;
             }
             I_ADD => {
@@ -334,7 +424,7 @@ impl VMStarter {
                 }
             }
             PDTS => {
-                dev_print!("[ PDTS ]");
+                sender_dev_print!(&self.print_sender, "[ PDTS ]");
 
                 let pdts = &self.data;
 
@@ -366,20 +456,21 @@ impl VMStarter {
             PRTFS => {
                 dev_print!("[ PRTFS ]");
 
-                if let TypeString(s) = handle_stack_err(self.stack.pop()) {
-                    print!("{s}");
-                } else {
-                    panic!("[ NO STRING ]");
-                }
+                let value = match self.stack.pop() {
+                    Ok(value) => value,
+                    Err(err) => {
+                        error(&self.print_sender, format!("{}", err));
+                        self.instructor(PANIC);
+                        Null
+                    }
+                };
+                
+                print(&self.print_sender, value);
             }
             PRTFD => {
                 dev_print!("[ PRTFD ]");
-
-                if let TypeString(s) = self.data.clone() {
-                    print!("{s}");
-                } else {
-                    panic!("[ NO STRING ]");
-                }
+                
+                print(&self.print_sender, &self.data);
             }
             I_EXP => {
                 dev_print!("[ iExp ]");
@@ -416,16 +507,6 @@ impl VMStarter {
                 } else {
                     panic!("[ NO FLOATS ]")
                 }
-            }
-            PRTAFD => {
-                dev_print!("[ PRTAFD ]");
-
-                print_any(self.data.clone());
-            }
-            PRTAFS => {
-                dev_print!("[ PRTAFS ]");
-
-                print_any(handle_stack_err(self.stack.pop()));
             }
             AVP => {
                 dev_print!("[ AVP ]");
@@ -492,7 +573,7 @@ impl VMStarter {
                 {
                     // ***WIP***
                     async fn create_new_task(
-                        heap: Arc<RwLock<VMHeap>>,
+                        // heap: Arc<RwLock<VMHeap>>,
                         repo: Arc<RwLock<VMRepository>>,
                         threadnum: usize,
                     ) -> Result<(), String> {
@@ -522,7 +603,7 @@ impl VMStarter {
                             Null,
                         ];
 
-                        let mut thread = VMThread::new(instructions, data, &heap, &repo);
+                        let mut thread = VMThread::new(instructions, data, &repo);
 
                         let mut error: Option<String> = None;
 
@@ -568,12 +649,12 @@ impl VMStarter {
                         }
                     }
 
-                    let heap = Arc::clone(&self.heap);
+                    // let heap = Arc::clone(&self.heap);
                     let repo = Arc::clone(&self.repository);
 
                     let threadnum = self.task_handlers.len();
 
-                    let handle = task::spawn(create_new_task(heap, repo, threadnum));
+                    let handle = task::spawn(create_new_task(repo, threadnum));
 
                     // println!("Data: {:?}", self.data);
                     if let Boolean(bool) = self.data {
@@ -586,7 +667,7 @@ impl VMStarter {
             NTHRD => {
                 // ***WIP***
                 fn create_new_thread(
-                    heap: Arc<RwLock<VMHeap>>,
+                    // heap: Arc<RwLock<VMHeap>>,
                     repo: Arc<RwLock<VMRepository>>,
                     threadnum: usize,
                 ) -> Result<(), String> {
@@ -620,7 +701,7 @@ impl VMStarter {
                         Null,
                     ];
 
-                    let mut thread = VMThread::new(instructions, data, &heap, &repo);
+                    let mut thread = VMThread::new(instructions, data, &repo);
 
                     let mut error: Option<String> = None;
 
@@ -666,12 +747,12 @@ impl VMStarter {
                     }
                 }
 
-                let heap = Arc::clone(&self.heap);
+                // let heap = Arc::clone(&self.heap);
                 let repo = Arc::clone(&self.repository);
 
                 let threadnum = self.thread_handlers.len();
 
-                let handle = thread::spawn(move || create_new_thread(heap, repo, threadnum));
+                let handle = thread::spawn(move || create_new_thread(repo, threadnum));
 
                 // println!("Data: {:?}", self.data);
                 if let Boolean(bool) = self.data {
@@ -680,8 +761,71 @@ impl VMStarter {
                     }
                 }
             }
+            PANIC => {
+
+                sender_dev_print!(&self.print_sender, "[ PANIC ]");
+
+                error(&self.print_sender,"Main thread panicked");
+                trace(&self.print_sender, format!("Main {:?}", self.stack));
+                trace(&self.print_sender, format!("Program Counter: {:?}", self.pc));
+                trace(&self.print_sender, format!("Last instruction: 0x{:02X}", self.instructions[self.pc-1]));
+
+                self.running = false;
+            }
+            PEEK => {
+
+                sender_dev_print!(&self.print_sender, "[ PEEK ]");
+
+                if let Some(last_element) = self.stack.stack_memory.get(self.stack.top-1) {
+                    self.data_register = last_element.clone();
+                } else {
+                    warn(&self.print_sender, "Stack is empty, can't peek");
+                };
+            }
+            SWAP => {
+
+                sender_dev_print!(&self.print_sender, "[ SWAP ]");
+
+                sender_dev_print!(&self.print_sender, "Before SWAP: {:?}", self.stack);
+
+                match self.stack.pop() {
+                    Ok(last_obj) => {
+                        match self.stack.pop() {
+                            Ok(second_last) => {
+                                match self.stack.push(last_obj) {
+                                    Ok(_) => {
+                                        match self.stack.push(second_last) {
+                                            Ok(_) => {}
+                                            Err(err) => {
+                                                error(&self.print_sender, err);
+                                                self.instructor(PANIC);
+                                            }
+                                        }
+                                    }
+                                    Err(err) => {
+                                        error(&self.print_sender, err);
+                                        self.instructor(PANIC);
+                                    }
+                                };
+                            },
+                            Err(err) => {
+                                error(&self.print_sender, err);
+                                self.instructor(PANIC);
+                            }
+                        };
+                    }
+                    Err(err) => {
+                        error(&self.print_sender, err);
+                        self.instructor(PANIC);
+                    }
+                }
+
+                sender_dev_print!(&self.print_sender, "After SWAP: {:?}", self.stack);
+            }
             _ => {
-                panic!("[ UNKNOWN INSTRUCTION ]")
+                self.stack.push(MutStr("[ UNKNOWN INSTRUCTION ]".to_string())).unwrap();
+                self.instructor(PANIC);
+                // panic!("[ UNKNOWN INSTRUCTION ]")
             }
         }
     }

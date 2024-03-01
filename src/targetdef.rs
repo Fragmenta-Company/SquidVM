@@ -16,7 +16,14 @@ pub const TARGET: &str = "Linux ARMv8";
 /// Set the target constant to show when using `./squid-vm(.exe) --version`.
 #[cfg(target_os = "linux")]
 #[cfg(target_arch = "arm")]
+#[cfg(target_feature = "neon")]
 pub const TARGET: &str = "Linux ARMv7";
+
+/// Set the target constant to show when using `./squid-vm(.exe) --version`.
+#[cfg(target_os = "linux")]
+#[cfg(target_arch = "arm")]
+#[cfg(not(target_feature = "neon"))]
+pub const TARGET: &str = "Linux ARMv6";
 
 /// Set the target constant to show when using `./squid-vm(.exe) --version`.
 #[cfg(not(target_arch = "x86_64"))]
