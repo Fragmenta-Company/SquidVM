@@ -64,9 +64,9 @@ use clap::Parser;
 use errdef::*;
 use sqd_reader::sqdbin_reader::FileReader;
 use std::process;
-use std::sync::RwLock;
 use targetdef::*;
 use vm_internals::VMStarter;
+use crate::vm_internals::PrintMessage;
 
 #[cfg(feature = "default")]
 /// Contains tools for checking updates, getting current version and others.
@@ -108,23 +108,6 @@ fn main() {
     dev_print!("Exiting...");
 }
 
-fn test() {
-    use crate::vm_internals::heap::*;
-    use std::sync::Arc;
-
-    let mut heap = VMHeap::new(200);
-
-    let mut empty_heap = VMHeap::new_empty(200);
-
-    let idk2 = empty_heap.allocate_global_region();
-
-    let idk = heap.allocate_task_region();
-
-    println!("{idk}");
-    println!("{heap:?}");
-    println!("{idk2}");
-    println!("{empty_heap:?}");
-}
 
 #[cfg(feature = "default")]
 /// Get arguments from the command and creates a VMStarter object.
@@ -132,7 +115,6 @@ fn test() {
 /// File is read and converted to VM readble objects before the interpreter starts.
 #[cfg(not(test))]
 fn main() {
-    test();
     #[cfg(feature = "bundle")]
     crate::sqd_reader::sar_reader::archivereader::ArchiveReader::new();
 
@@ -170,7 +152,6 @@ fn main() {
     }
 
     let mut vm = VMStarter::new(maxmem, args.repo_size);
-    // dev_print!("{:?}", vm);
 
     if let Some(fileread) = fileread {
         while vm.running {
@@ -202,6 +183,9 @@ fn main() {
             };
         }
     }
+    
+    vm.print_sender.send(PrintMessage::End).unwrap();
+    vm.print_handler.join().unwrap();
 
     dev_print!("Exiting...");
 }
