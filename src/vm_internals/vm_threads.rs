@@ -1,8 +1,8 @@
 use crate::instructiondefs::*;
 use crate::vm_internals::immediates::Immediates::{
-    self, Array, Binary, Boolean, Float, Integer, Null, RefPtr, String as TypeString, UInteger,
+    self, Array, Binary, Boolean, Float, Integer, Null, MutStr as TypeString, UInteger,
 };
-use crate::vm_internals::{open_window, print_any};
+use crate::vm_internals::{open_window};
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
 
 #[cfg(feature = "green-threads")]
@@ -395,22 +395,16 @@ impl VMThread<'_> {
                     }
                 };
 
-                if let TypeString(s) = value {
-                    print!("{s}");
-                    Ok(())
-                } else {
-                    Err("[ NO STRING ]".to_string())
-                }
+                print!("{}", value);
+                
+                Ok(())
             }
             PRTFD => {
                 dev_print!("[ PRTFD ]");
 
-                if let TypeString(s) = self.data.clone() {
-                    print!("{s}");
-                    Ok(())
-                } else {
-                    Err("[ NO STRING ]".to_string())
-                }
+                print!("{}", &self.data);
+                
+                Ok(())
             }
             I_EXP => {
                 dev_print!("[ iExp ]");
@@ -495,25 +489,6 @@ impl VMThread<'_> {
                 } else {
                     Err("[ NO FLOATS ]".to_string())
                 }
-            }
-            PRTAFD => {
-                dev_print!("[ PRTAFD ]");
-
-                print_any(self.data.clone());
-                Ok(())
-            }
-            PRTAFS => {
-                dev_print!("[ PRTAFS ]");
-
-                let value = match self.stack.pop() {
-                    Ok(value) => value,
-                    Err(err) => {
-                        return Err(err);
-                    }
-                };
-
-                print_any(value);
-                Ok(())
             }
             AVP => {
                 dev_print!("[ AVP ]");
