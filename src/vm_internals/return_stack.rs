@@ -1,6 +1,5 @@
-use arrayvec::ArrayVec;
 use crate::vm_internals::heap;
-use std::arch::asm;
+use arrayvec::ArrayVec;
 
 /// Fixed value of the return stack size.
 const STACK_SIZE: usize = 500;
@@ -8,7 +7,7 @@ const STACK_SIZE: usize = 500;
 #[derive(Debug)]
 enum ReturnType {
     WithoutPointer(usize),
-    WithPointer(heap::Pointer)
+    WithPointer(heap::Pointer),
 }
 
 debug_derive!(
@@ -52,7 +51,10 @@ impl ReturnStack {
         }
 
         self.top -= 1;
-        Ok(self.return_addresses.pop().expect("Stack should not be empty"))
+        Ok(self
+            .return_addresses
+            .pop()
+            .expect("Stack should not be empty"))
     }
 
     /// Used to check if the stack is empty at the moment.

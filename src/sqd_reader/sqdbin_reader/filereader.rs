@@ -2,7 +2,7 @@ use crate::errdef::*;
 use crate::instructiondefs::*;
 use crate::sqd_reader::sqdbin_reader::defs::*;
 use crate::vm_internals::immediates::Immediates::{
-    self, Boolean, Float, Integer, Null, MutStr, UInteger,
+    self, Boolean, Float, Integer, MutStr, Null, UInteger,
 };
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::fmt::Display;
@@ -332,7 +332,7 @@ impl FileReader {
 
                             println!("{version}");
                             println!("\x1B[31mIn alpha and beta versions the VM will change a lot, so most things will change.");
-                            println!("Binaries for SquidVM 0.7.0-alpha and up will not be compatible with old versions\x1b[0m");
+                            println!("Binaries for SquidVM {} may not be compatible with older versions and vice versa.\x1b[0m", env!("CARGO_PKG_VERSION"));
 
                             let compiler = match String::from_utf8(byte_string) {
                                 Ok(string) => string,

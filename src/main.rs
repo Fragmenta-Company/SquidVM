@@ -53,10 +53,10 @@ mod instructiondefs;
 mod targetdef;
 mod tests;
 
+#[cfg(feature = "default")]
 use argsdef::*;
-use std::mem::size_of_val;
 
-use crate::vm_internals::immediates::Immediates;
+use crate::vm_internals::PrintMessage;
 #[cfg(feature = "green-threads")]
 use async_std::task;
 #[cfg(feature = "default")]
@@ -66,7 +66,6 @@ use sqd_reader::sqdbin_reader::FileReader;
 use std::process;
 use targetdef::*;
 use vm_internals::VMStarter;
-use crate::vm_internals::PrintMessage;
 
 #[cfg(feature = "default")]
 /// Contains tools for checking updates, getting current version and others.
@@ -108,7 +107,6 @@ fn main() {
     dev_print!("Exiting...");
 }
 
-
 #[cfg(feature = "default")]
 /// Get arguments from the command and creates a VMStarter object.
 /// Run vm.interpreter in loop while vm is running.
@@ -116,7 +114,7 @@ fn main() {
 #[cfg(not(test))]
 fn main() {
     #[cfg(feature = "bundle")]
-    crate::sqd_reader::sar_reader::archivereader::ArchiveReader::new();
+    sqd_reader::sar_reader::archivereader::ArchiveReader::new();
 
     let mut fileread: Option<FileReader> = None;
     let mut bin: Option<String> = None;
@@ -151,7 +149,7 @@ fn main() {
     } else if let Some(_sar) = sar {
     }
 
-    let mut vm = VMStarter::new(maxmem, args.repo_size);
+    let mut vm = VMStarter::new(maxmem, args.repo_size, args.stack_size);
 
     if let Some(fileread) = fileread {
         while vm.running {
@@ -183,7 +181,7 @@ fn main() {
             };
         }
     }
-    
+
     vm.print_sender.send(PrintMessage::End).unwrap();
     vm.print_handler.join().unwrap();
 

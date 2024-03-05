@@ -76,3 +76,13 @@ pub const PANIC: u8 = 0x1B;
 pub const PEEK: u8 = 0x1C;
 
 pub const SWAP: u8 = 0x1D;
+
+pub const EQUALS: u8 = 0x1E;
+
+pub const LESSTHAN: u8 = 0x1F;
+
+pub const GREATERTHAN: u8 = 0x20;
+
+pub const AND: u8 = 0x21;
+
+pub const OR: u8 = 0x22;

@@ -1,8 +1,8 @@
 use crate::instructiondefs::*;
 use crate::vm_internals::immediates::Immediates::{
-    self, Array, Binary, Boolean, Float, Integer, Null, MutStr as TypeString, UInteger,
+    self, Array, Binary, Boolean, Float, Integer, MutStr as TypeString, Null, UInteger,
 };
-use crate::vm_internals::{open_window};
+use crate::vm_internals::open_window;
 use crate::vm_internals::{VMHeap, VMRepository, VMStack};
 
 #[cfg(feature = "green-threads")]
@@ -32,12 +32,13 @@ debug_derive!(
 );
 
 impl VMThread<'_> {
-    pub fn new<'a>(
+    pub fn new(
         instructions: Vec<u8>,
         data_vault: Vec<Immediates>,
         // heap: &'a Arc<RwLock<VMHeap>>,
-        repo: &'a Arc<RwLock<VMRepository>>,
-    ) -> VMThread<'a> {
+        repo: &Arc<RwLock<VMRepository>>,
+        stack_size: usize,
+    ) -> VMThread {
         VMThread {
             running: true,
             pc: 0,
@@ -45,7 +46,7 @@ impl VMThread<'_> {
             instructions,
             data: Null,
             data_vault,
-            stack: VMStack::new(),
+            stack: VMStack::new(stack_size),
             // heap,
             repository: repo,
             #[cfg(feature = "green-threads")]
@@ -396,14 +397,14 @@ impl VMThread<'_> {
                 };
 
                 print!("{}", value);
-                
+
                 Ok(())
             }
             PRTFD => {
                 dev_print!("[ PRTFD ]");
 
                 print!("{}", &self.data);
-                
+
                 Ok(())
             }
             I_EXP => {

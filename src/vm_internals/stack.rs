@@ -1,10 +1,8 @@
-use std::fmt::{Debug, Formatter};
 use crate::vm_internals::immediates::Immediates;
-use arrayvec::ArrayVec;
+use std::fmt::{Debug, Formatter};
 
 /// Fixed value of the stack size.
 const STACK_SIZE: usize = 2000;
-
 
 /// Stack implementation.
 pub struct VMStack {
@@ -12,7 +10,7 @@ pub struct VMStack {
     ///
     /// It's an ArrayVec so all the data is contained in the stack.
     /// Being that it has the speed of a real stack.
-    pub stack_memory: ArrayVec<Immediates, STACK_SIZE>,
+    pub stack_memory: Vec<Immediates>,
 
     /// The stack capacity.
     pub stack_capacity: usize,
@@ -20,22 +18,26 @@ pub struct VMStack {
     /// Points to the latest value pushed into the stack.
     ///
     /// Used mostly for monitoring the stack current size.
-    pub(crate) top: usize, 
+    pub(crate) top: usize,
 }
 
 impl Debug for VMStack {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Stack => [\n\tContents => {:?},\n\tCapacity => {},\n\tTop => {},\n]", self.stack_memory, self.stack_capacity, self.top)
+        write!(
+            f,
+            "Stack => [\n\tContents => {:?},\n\tCapacity => {},\n\tTop => {},\n]",
+            self.stack_memory, self.stack_capacity, self.top
+        )
     }
 }
 
 impl VMStack {
     /// Instantiates the VMStack object and returns it.
-    pub fn new() -> VMStack {
+    pub fn new(stack_size: usize) -> VMStack {
         VMStack {
-            stack_capacity: STACK_SIZE,
+            stack_capacity: stack_size,
             top: 0,
-            stack_memory: ArrayVec::<Immediates, STACK_SIZE>::new(),
+            stack_memory: Vec::<Immediates>::with_capacity(stack_size),
         }
     }
 
