@@ -1,5 +1,30 @@
-#[cfg(feature = "default")]
+#![cfg(feature = "default")]
 use clap::Parser;
+use clap::Subcommand;
+
+#[derive(Subcommand, Debug)]
+pub enum Spark {
+    /// Used for benchmarking, profiling and debugging *WIP*
+    Spark {
+        #[arg(short, long)]
+        /// Binary File Input | Don't need extension (.sqdbin)
+        #[arg(short, long, value_name = "FILE", required = true, conflicts_with = "sar")]
+        bin: Option<String>,
+
+        /// Squid ARchive File Input | Don't need extension (.sar)
+        #[arg(short, long, value_name = "FILE", required = true, conflicts_with = "bin")]
+        sar: Option<String>,
+
+        #[arg(short = 'x', long, conflicts_with = "profile", conflicts_with = "benchmark")]
+        debug: bool,
+        
+        #[arg(short = 'y', long, conflicts_with = "profile", conflicts_with = "debug")]
+        benchmark: bool,
+        
+        #[arg(short = 'z', long, conflicts_with = "benchmark", conflicts_with = "debug")]
+        profile: bool,
+    },
+}
 
 #[cfg(feature = "default")]
 /// Argument Parser
@@ -15,12 +40,16 @@ pub struct Args {
     pub sar: Option<String>,
 
     /// Max Memory Allocated for the heap | Postfixes: GB, MB, KB, B
-    #[arg(short, long, value_name = "SIZE", default_value = "512MB")]
+    #[arg(long, value_name = "SIZE", default_value = "512MB", visible_alias = "xhs")]
     pub maxmem: String,
 
-    /// The repository is used for saving global variables easily
-    #[arg(short, long, value_name = "SIZE", default_value = "20")]
+    /// The repository is used for storing global variables. Measured in objects.
+    #[arg(long, value_name = "OBJECTS", default_value = "20", visible_alias = "xrs")]
     pub repo_size: usize,
+
+    #[arg(long, value_name = "OBJECTS", default_value = "1000", visible_alias = "xss")]
+    /// Size of the stack. Measured in objects
+    pub stack_size: usize,
 
     /// Check the binary version for binaries with metadata included | Works with bin or sar
     #[arg(
@@ -43,6 +72,9 @@ pub struct Args {
     /// Shows newer versions if detected
     #[arg(long, visible_alias = "cnv")]
     pub check_updates: bool,
+    
+    #[clap(subcommand)]
+    pub spark: Option<Spark>
 }
 
 #[cfg(feature = "default")]
