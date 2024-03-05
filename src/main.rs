@@ -53,10 +53,9 @@ mod instructiondefs;
 mod targetdef;
 mod tests;
 
+#[cfg(feature = "default")]
 use argsdef::*;
-use std::mem::size_of_val;
 
-use crate::vm_internals::immediates::Immediates;
 #[cfg(feature = "green-threads")]
 use async_std::task;
 #[cfg(feature = "default")]
@@ -116,7 +115,7 @@ fn main() {
 #[cfg(not(test))]
 fn main() {
     #[cfg(feature = "bundle")]
-    crate::sqd_reader::sar_reader::archivereader::ArchiveReader::new();
+    sqd_reader::sar_reader::archivereader::ArchiveReader::new();
 
     let mut fileread: Option<FileReader> = None;
     let mut bin: Option<String> = None;
@@ -151,7 +150,7 @@ fn main() {
     } else if let Some(_sar) = sar {
     }
 
-    let mut vm = VMStarter::new(maxmem, args.repo_size);
+    let mut vm = VMStarter::new(maxmem, args.repo_size, args.stack_size);
 
     if let Some(fileread) = fileread {
         while vm.running {
