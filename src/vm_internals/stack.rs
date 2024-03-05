@@ -1,6 +1,5 @@
 use std::fmt::{Debug, Formatter};
 use crate::vm_internals::immediates::Immediates;
-use arrayvec::ArrayVec;
 
 /// Fixed value of the stack size.
 const STACK_SIZE: usize = 2000;
@@ -12,7 +11,7 @@ pub struct VMStack {
     ///
     /// It's an ArrayVec so all the data is contained in the stack.
     /// Being that it has the speed of a real stack.
-    pub stack_memory: ArrayVec<Immediates, STACK_SIZE>,
+    pub stack_memory: Vec<Immediates>,
 
     /// The stack capacity.
     pub stack_capacity: usize,
@@ -31,11 +30,11 @@ impl Debug for VMStack {
 
 impl VMStack {
     /// Instantiates the VMStack object and returns it.
-    pub fn new() -> VMStack {
+    pub fn new(stack_size: usize) -> VMStack {
         VMStack {
-            stack_capacity: STACK_SIZE,
+            stack_capacity: stack_size,
             top: 0,
-            stack_memory: ArrayVec::<Immediates, STACK_SIZE>::new(),
+            stack_memory: Vec::<Immediates>::with_capacity(stack_size),
         }
     }
 
