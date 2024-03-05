@@ -1,6 +1,5 @@
 use crate::vm_internals::heap;
 use arrayvec::ArrayVec;
-use std::arch::asm;
 
 /// Fixed value of the return stack size.
 const STACK_SIZE: usize = 500;
