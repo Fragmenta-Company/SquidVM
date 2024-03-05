@@ -189,7 +189,7 @@ pub fn trace<T: Display>(print_sender: &Sender<PrintMessage>, message: T) {
 
 impl VMStarter {
     /// Instantiates the VMStarter struct. Very straight forward.
-    pub fn new(heap_size: usize, repository_size: usize) -> VMStarter {
+    pub fn new(heap_size: usize, repository_size: usize, stack_size: usize) -> VMStarter {
 
         let (print_sender, print_receiver) = mpsc::channel::<PrintMessage>();
 
@@ -243,8 +243,8 @@ impl VMStarter {
             instructions: Vec::new(),
             data: Null,
             data_vault: Vec::new(),
-            stack: VMStack::new(),
-            return_stack: VMStack::new(),
+            stack: VMStack::new(stack_size),
+            return_stack: VMStack::new(100),
             function_stack: Vec::new(),
             // heap: Arc::new(RwLock::from(VMHeap::new(heap_size))),
             repository: Arc::new(RwLock::from(VMRepository::new(repository_size))),
@@ -576,6 +576,7 @@ impl VMStarter {
                         // heap: Arc<RwLock<VMHeap>>,
                         repo: Arc<RwLock<VMRepository>>,
                         threadnum: usize,
+                        stack_size: usize
                     ) -> Result<(), String> {
                         let instructions = vec![
                             0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
@@ -603,7 +604,7 @@ impl VMStarter {
                             Null,
                         ];
 
-                        let mut thread = VMThread::new(instructions, data, &repo);
+                        let mut thread = VMThread::new(instructions, data, &repo, stack_size);
 
                         let mut error: Option<String> = None;
 
@@ -654,7 +655,9 @@ impl VMStarter {
 
                     let threadnum = self.task_handlers.len();
 
-                    let handle = task::spawn(create_new_task(repo, threadnum));
+                    let stack_size = self.stack.stack_capacity;
+
+                    let handle = task::spawn(create_new_task(repo, threadnum, stack_size));
 
                     // println!("Data: {:?}", self.data);
                     if let Boolean(bool) = self.data {
@@ -670,6 +673,7 @@ impl VMStarter {
                     // heap: Arc<RwLock<VMHeap>>,
                     repo: Arc<RwLock<VMRepository>>,
                     threadnum: usize,
+                    stack_size: usize
                 ) -> Result<(), String> {
                     let instructions = vec![
                         0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14, 0x0A, 0x0A, 0x01, 0x14,
@@ -701,7 +705,7 @@ impl VMStarter {
                         Null,
                     ];
 
-                    let mut thread = VMThread::new(instructions, data, &repo);
+                    let mut thread = VMThread::new(instructions, data, &repo, stack_size);
 
                     let mut error: Option<String> = None;
 
@@ -751,8 +755,10 @@ impl VMStarter {
                 let repo = Arc::clone(&self.repository);
 
                 let threadnum = self.thread_handlers.len();
+                
+                let stack_size = self.stack.stack_capacity;
 
-                let handle = thread::spawn(move || create_new_thread(repo, threadnum));
+                let handle = thread::spawn(move || create_new_thread(repo, threadnum, stack_size));
 
                 // println!("Data: {:?}", self.data);
                 if let Boolean(bool) = self.data {
