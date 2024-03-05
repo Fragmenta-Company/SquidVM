@@ -2,7 +2,7 @@ use crate::errdef::*;
 use crate::instructiondefs::*;
 use crate::sqd_reader::sqdbin_reader::defs::*;
 use crate::vm_internals::immediates::Immediates::{
-    self, Boolean, Float, Integer, Null, MutStr, UInteger,
+    self, Boolean, Float, Integer, MutStr, Null, UInteger,
 };
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::fmt::Display;

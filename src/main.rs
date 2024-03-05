@@ -56,6 +56,7 @@ mod tests;
 #[cfg(feature = "default")]
 use argsdef::*;
 
+use crate::vm_internals::PrintMessage;
 #[cfg(feature = "green-threads")]
 use async_std::task;
 #[cfg(feature = "default")]
@@ -65,7 +66,6 @@ use sqd_reader::sqdbin_reader::FileReader;
 use std::process;
 use targetdef::*;
 use vm_internals::VMStarter;
-use crate::vm_internals::PrintMessage;
 
 #[cfg(feature = "default")]
 /// Contains tools for checking updates, getting current version and others.
@@ -106,7 +106,6 @@ fn version_args(args: &Args) {
 fn main() {
     dev_print!("Exiting...");
 }
-
 
 #[cfg(feature = "default")]
 /// Get arguments from the command and creates a VMStarter object.
@@ -182,7 +181,7 @@ fn main() {
             };
         }
     }
-    
+
     vm.print_sender.send(PrintMessage::End).unwrap();
     vm.print_handler.join().unwrap();
 

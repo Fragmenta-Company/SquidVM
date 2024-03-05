@@ -74,7 +74,7 @@ impl VMHeap {
                 }
             }
         } else {
-            index+=1;
+            index += 1;
         }
 
         index -= 1;
