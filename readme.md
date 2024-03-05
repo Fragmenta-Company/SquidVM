@@ -9,8 +9,6 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/Fragmenta-Company/SquidVM?label=last%20release)
 ![GitHub License](https://img.shields.io/github/license/Fragmenta-Company/SquidVM)
 
-# **What is SquidVM?**
-
 ```text
   _____             _     ___      ____  __ 
  / ____|           (_)   | \ \    / /  \/  |
@@ -22,10 +20,24 @@
            |_|                              
 ```
 
-SquidVM is a Stack-based VM (just like _Java's JVM_).
-It's made from the ground up using Rust for its implementation.
+# **What is the SquidVM?**
+SquidVM is a Stack-based VM made from the 
+ground up using Rust for its implementation.
 
-The VM will contain a programming language with the name Squid.
+The VM will contain a programming language with the name _Squid_
+and a simpler scripting language called _Squipt_.
+Both will be made for working together and also
+both will be statically and strongly typed.
+
+The main difference between them is that int,
+unsigned int, float, [...] will be replaced with number,
+unsafe blocks will not be supported and
+some other changes made for simplicity in Squipt.
+
+I'm also thinking of implementing a dynamically typed language.
+
+That one will also be made for working
+together with the other two natively.
 
 ## How to install it?
 
@@ -36,28 +48,24 @@ Download the installation script for:
 - [SquidVM Development Kit (SVDK)](https://github.com/Fragmenta-Company/SquidVM/raw/production/install-scripts/install-svdk.sh)
 
 After that, you will need to make the script executable:
-
 ```shell
 foo@bar:~$ chmod +x ./install-svdk.sh
 ```
 
-Then run it normally:
+Then run the setup:
 ```shell
 foo@bar:~$ sudo ./install-svdk.sh
 ```
 
-### Done!
+#### For a more specialized setup
+I would rather recommend compiling
+from source and installing to a desired folder.
 
 ### Windows
 
-Download the setup from the latest releases for:
-- [SquidVM Runtime (SVRT)](https://github.com/Fragmenta-Company/SquidVM/releases/latest/download/SVDK.Setup.exe)
-- [SquidVM Development Kit (SVDK)](https://github.com/Fragmenta-Company/SquidVM/releases/latest/download/SquidVM.Setup.exe)
-
-Open the file after the download and install it.
-### Done!
-The installer tries to add SquidVM to PATH, so try using SquidVM
-in the terminal, and tell me if it works on your machine!
+```rust
+todo!();
+```
 
 ### MacOS
 
@@ -67,20 +75,19 @@ todo!();
 
 ## How to use?
 
-If you are trying to run your compiled Squid code:
+If you are trying to run your compiled SquidVM bytecode:
 
-Type this into the terminal:
 ```shell
+# Try this command to learn a bit
 foo@bar:~$ squidvm --help
-```
-If you are a VM developer or trying to debug a bit:
 
-Type this instead:
-```shell
+# If you are a VM developer or trying to debug
+# Try this instead:
 foo@bar:~$ svdk --help
 ```
+
 - [Access documentation here](https://squidvmdocs.fragmenta.org/)
-to get more info about the internal function of the VM.
+to get more info about the VM's internal function.
 
 ## What is a .sqdbin file?
 
@@ -98,12 +105,10 @@ I'll probably make a simple wiki for that in some time! _Just wait for it._
 
 The command requires tags now!
 
-For binary files:
 ```shell
+# For binary files
 foo@bar:~$ squid-vm -b testbinary
-```
-For SARs:
-```shell
+# For SARs
 foo@bar:~$ squid-vm -s sarfile
 ```
 
@@ -112,8 +117,8 @@ But it's still there.
 
 ### For [versions between 0.4.0 (pre-alpha) and 0.5.2-alpha](https://github.com/Fragmenta-Company/SquidVM/compare/V0.4.0...V0.6.0-alpha):
 
-Run it like this
 ```shell
+# Run like this
 foo@bar:~$ ./squid-vm(.exe) testbinary.sqdbin
 ```
 
@@ -122,12 +127,16 @@ Here ya go!
 Hope it helps. : )
 
 ## What are .sar files?
-SARs or Squid ARchives are files that are a group of binary files combined
-into a single archive.
+SARs or Squid ARchives are files that are a group of binaries combined
+into a single archive containing types, metadata and native libraries.
 
-### So the files can be compressed or encrypted?
-For now, it's just a plan to add, but yes, if all goes well, it will have
-support for all that and more in the future.
+They are made so that instead of sharing lots of
+bytecode files each with a different metadata, you
+can share a single file containing all the bytecode.
+
+### So SARs can be compressed or encrypted?
+For now, it's just a plan, but yes, if all goes right, 
+it will have support for all that and more in the future.
 
 **IT'S NOT IMPLEMENTED YET!**
 
@@ -135,15 +144,16 @@ The above warning will be removed when SARs are made available!
 
 ## What is Spark?
 
-### Spark is the benchmarking and profiling tool for the SquidVM.
-#### It can be called like that:
+### Spark is a benchmarking, profiling and debugging tool for the SquidVM.
 
+#### It will be used like this:
 ```shell
-foo@bar:~$ squidvm --spark bench -b ./binary.sqdbin
-```
-and
-```shell
-foo@bar:~$ squidvm --spark profile -b ./binary.sqdbin
+# For debugging
+foo@bar:~$ squidvm spark --debug -b ./binary.sqdbin
+# For benchmarking
+foo@bar:~$ squidvm spark --bench -b ./binary.sqdbin
+# For profiling
+foo@bar:~$ squidvm spark --profile -b ./binary.sqdbin
 ```
 
 **IT'S NOT IMPLEMENTED YET!**
