@@ -89,17 +89,19 @@ foo@bar:~$ svdk --help
 - [Access documentation here](https://squidvmdocs.fragmenta.org/)
 to get more info about the VM's internal function.
 
-## What is a .sqdbin file?
+## What is a .sqd file?
 
 It's the binary file that contains the instructions and data the VM will 
 use to run your program!
 
-Want to know more about the instruction set, stack and heap implemenation?
+Want to know more about the instruction set,
+working stack, return stack, function cache,
+heap regions, the global repository and more?
 [Access the documentation here](https://squidvmdocs.fragmenta.org/).
 
 I'll probably make a simple wiki for that in some time! _Just wait for it._
 
-## How to open .sqdbin files
+## How to open .sqd files
 
 ### As of [SquidVM 0.6.0-alpha](https://github.com/Fragmenta-Company/SquidVM/releases/tag/V0.6.0-alpha):
 
@@ -113,13 +115,16 @@ foo@bar:~$ squid-vm -s sarfile
 ```
 
 Both don't need the extension to be typed.
-But it's still there.
+
+Versions 0.9.0-alpha and older use `.sqdbin` instead of `.sqd`.
+The change was made for simplification.
 
 ### For [versions between 0.4.0 (pre-alpha) and 0.5.2-alpha](https://github.com/Fragmenta-Company/SquidVM/compare/V0.4.0...V0.6.0-alpha):
 
 ```shell
 # Run like this
 foo@bar:~$ ./squid-vm(.exe) testbinary.sqdbin
+# Older versions use the `.sqdbin` extension
 ```
 
 Here ya go!
@@ -127,15 +132,17 @@ Here ya go!
 Hope it helps. : )
 
 ## What are .sar files?
-SARs or Squid ARchives are files that are a group of binaries combined
-into a single archive containing types, metadata and native libraries.
+SARs, or Squid ARchives, are files that group 
+binaries into a single archive containing 
+types, metadata, and native libraries.
 
-They are made so that instead of sharing lots of
-bytecode files each with a different metadata, you
-can share a single file containing all the bytecode.
+They are designed so that instead of sharing 
+numerous bytecode files, each with different 
+metadata, you can share a single 
+file containing all the bytecode.
 
-### So SARs can be compressed or encrypted?
-For now, it's just a plan, but yes, if all goes right, 
+### Can SARs be compressed or encrypted?
+For now, it's just a plan, but if all goes well,
 it will have support for all that and more in the future.
 
 **IT'S NOT IMPLEMENTED YET!**
@@ -149,11 +156,11 @@ The above warning will be removed when SARs are made available!
 #### It will be used like this:
 ```shell
 # For debugging
-foo@bar:~$ squidvm spark --debug -b ./binary.sqdbin
+foo@bar:~$ squidvm spark --debug -b ./binary # or -s ./sar
 # For benchmarking
-foo@bar:~$ squidvm spark --bench -b ./binary.sqdbin
+foo@bar:~$ squidvm spark --bench -b ./binary # or -s ./sar
 # For profiling
-foo@bar:~$ squidvm spark --profile -b ./binary.sqdbin
+foo@bar:~$ squidvm spark --profile -b ./binary # or -s ./sar
 ```
 
 **IT'S NOT IMPLEMENTED YET!**

@@ -13,7 +13,7 @@ documentation = "https://squidvmdocs.fragmenta.org"
 default = ["dep:clap", "ahash_algorithm"]
 devkit = ["all"]
 all = [
-    "sdl2",
+    "sdl2-bundled",
     "wgpu",
     "winit",
     "green-threads",
@@ -36,6 +36,7 @@ cli = [
     "ahash_algorithm"
 ]
 sdl2 = ["dep:sdl2"]
+sdl2-bundled = ["sdl2", "sdl2/bundled"]
 sdl2-static = ["sdl2/bundled", "sdl2", "sdl2/static-link"]
 power-windowing = ["winit", "wgpu"]
 winit = ["dep:winit"]
@@ -68,5 +69,5 @@ futures = { version = "0.3", optional = true }
 rand = { version = "0.8", optional = true }
 winit = { version = "0.29", optional = true }
 wgpu-hal = { version = "0.19", features = ["vulkan"], optional = true }
-sdl2 = { version = "0.36", features = ["bundled"], optional = true }
+sdl2 = { version = "0.36", optional = true }
 #cc = { version = "1.0", features = ["parallel"] }
