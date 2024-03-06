@@ -1,5 +1,5 @@
-/// .sqdbin file extension.
-pub const SQDBIN: &str = ".sqdbin";
+/// .sqd file extension. (".sqdbin" was renamed to ".sqd")
+pub const SQDBIN: &str = ".sqd";
 
 /// Size of the file's header that stores the metadata.
 pub const HEADER_SIZE: u64 = 32;
