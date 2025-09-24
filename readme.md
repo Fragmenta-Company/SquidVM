@@ -1,3 +1,6 @@
+# DEPRECATED
+A rewrite will be launched to replace this one.
+
 <p align="center">
     <img src="https://d1qrumake2q7xa.cloudfront.net/squid-vm.svg" alt="SquidVM Logo" width="350px" />
 </p>
